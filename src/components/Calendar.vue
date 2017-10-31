@@ -11,7 +11,7 @@
       <button class="btn btn-primary" v-on:click="counter  = 1">First day Mon</button>
     </div>
 
-    <div id="app" class="col-md-9 ">
+    <div id="app" class="">
       <div id="calendar">
         <div class="head"><b class="ltMonth" @click="ltMonth">«</b><b>{{months[currMonth]}} {{currYear}}</b><b class="gtMonth" @click="gtMonth">»</b></div>
           <div v-if="counter == 2">
@@ -34,16 +34,16 @@
           </div>
       </div>
     </div>
-    <div class="col-md-3">
+    
       <div class="row">
-        <div class="col-md-8 booker-but">
+        <div class="booker-but">
          <button class="btn btn-btn btn-warning">Book it</button>
         </div>
-        <div class="col-md-8 booker-but">
+        <div class="booker-but">
          <button class="btn btn-btn btn-warning">Employee List</button>
         </div>
       </div>
-    </div>
+    
   </div>
 </template>
 <script>
@@ -93,7 +93,7 @@ export default {
       const now = new Date();
       if ( self.inst_date.getMonth() == now.getMonth() && self.inst_date.getFullYear() == now.getFullYear() ) {
         return now.getDate()
-      } else return
+      } 
     },
     daysInMonth() {
       var self = this
@@ -120,7 +120,7 @@ export default {
 
 <style scoped>
 .booker-but {
-  margin-top: 50px;
+  margin-top: 20px;
 }
 .boardroom-list {
   margin-top: 10px;

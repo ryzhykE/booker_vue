@@ -75,6 +75,23 @@ export default {
 };
 </script>
 
+
+'e.id, e.description as descr, e.id_employee as u_id, e.id_room as room_id,'
+				. ' emp.name as u_name, r.name as room_name, ed.start, ed.end')
+											  ->setTable('events e')
+											  ->setJoin('left join employees emp on e.id_employee = emp.id '
+													  . 'left join rooms r on e.id_room = r.id '
+													  . 'left join event_details ed on e.id = ed.id')
+												->setWhere("ed.start between '{$params['start']}' and '{$params['end']}'"
+												. "and e.id_room = {$params['id_room']
+
+
+$start = new \DateTime();
+			$start->setDate($params['year'],$params['month'], 1);
+			$arr['start'] = $start->format('Y-m-d 08-00-00');
+			$arr['end'] = $start->format('Y-m-t 20-00-00');
+
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .main {
