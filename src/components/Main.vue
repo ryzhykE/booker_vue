@@ -1,59 +1,46 @@
 <template>
-
-
-  <div class="main container-fluid">
-
-
-<button v-on:click="counter  = 1">Календарь</button>
-
-
-
-
-
-  <div id="app" class="col-md-9 col-md-offset-3">
-  <div id="calendar">
-    <div class="head"><b class="ltMonth" @click="ltMonth">«</b><b>{{months[currMonth]}} {{currYear}}</b><b class="gtMonth" @click="gtMonth">»</b></div>
-      <div v-if="counter == 1">
-      <div class="week"><b v-for="day in daysSun">{{day}}</b></div>
-          <div class="days">
-            <time v-if="nullWeek !==7" v-for="blank in nullWeek">&nbsp;</time>
-            <time v-for="i in daysInMonth" :class="{currDay: i == currDay}"> 
-              <div @click="showEvents(i)">
-         {{i}}
-      </div>
-            </time>
+  <div class="main container">
+      <div class="row">
+        <div class="col-xs-offset-3 col-sm-8 col-lg-6">
+          <div class="panel panel-primary">
+          <div class="panel-heading">
+          <h3 class="panel-title">Authorization</h3>
           </div>
-      </div>
-      <div v-else="counter1 == 2">
-      <div class="week"><b v-for="day in daysMon">{{day}}</b></div>
-          <div class="days">
-            <time v-for="blank in nullWeek1">&nbsp;</time>
-            <time v-for="i in daysInMonth" :class="{currDay: i == currDay}"> 
-              {{i}}
-            </time>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-offset-2 col-xs-8 col-sm-8 col-md-8 login-box">
+                <div class="input-group">
+                <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+                <input v-model="login" type="text" class="form-control" placeholder="Login" name='login' required autofocus />
+                </div>
+                <div class="input-group">
+                <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+                <input v-model="pass" type="password" class="form-control" name = "password" placeholder="Password" required />
+                </div>
+              </div>
+            </div>
           </div>
+          <div class="panel-footer">
+            <button type="button" class="btn btn-labeled btn-success" v-on:click="loginUser()">
+            <span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span>Войти</button>
+          </div>
+        </div>
       </div>
-      
+    </div>
   </div>
-</div>
-    
-  </div>
-
 </template>
-
 <script>
 import axios from "axios";
 export default {
   name: "Main",
   data() {
     return {
-      counter: '',
-      counter1: '',
-      typeC:'',
-      inst_date: new Date(),
-      daysSun: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-      daysMon: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
+      error:'',
+      login: "",
+      pass: "",
+      id: "",
+      checkUser: "",
+      role: "",
       config: {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -61,149 +48,119 @@ export default {
       }
     };
   },
- 
-  created() {
-  },
-    computed: {    
-    currYear() {
-      return this.inst_date.getFullYear()
-    },
-    currMonth() {
-      return this.inst_date.getMonth()
-    },
-    currWD() {
-      return this.inst_date.getDay()
-    },
-    currDay() {
-      const now = new Date();
-      if ( this.inst_date.getMonth() == now.getMonth() && this.inst_date.getFullYear() == now.getFullYear() ) {
-        return now.getDate()
-      } else return
-    },
-    daysInMonth() {
-      return new Date(this.currYear, this.currMonth+1, 0).getDate();
-    },
-    nullWeek() {
-      var res =  new Date(this.currYear, this.currMonth, 0).getDay()+1;
-      return res
-    },
+   methods: {
+      loginUser: function() {
+      var self = this;
+      self.error = "";
+      axios
+        .put(
+          getUrl()+'User/',
+          {
+            login: self.login,
+            pass: self.pass
+          }
+        )
+        .then(function(response) {
+          console.log(response.data);
+          if (response.data.id && response.data.hash) {
+            self.id = response.data.id;
+            self.hash = response.data.hash;
+            self.role = response.data.role;
+            localStorage["id"] = JSON.stringify(self.id);
+            localStorage["hash"] = JSON.stringify(self.hash);
+            localStorage["login"] = JSON.stringify(self.login);
+            localStorage["id_role"] = JSON.stringify(self.role);
+            //self.checkUserA();
+            if (response.data.role == "1") {
+                  self.$router.push("/admin");
+                }
+                else
+                {
+                  self.$router.push("/calendar");
+                }
 
-    nullWeek1() {
-      return new Date(this.currYear, this.currMonth, 0).getDay();
-    }
-  },
-  methods: {
-    showEvents(day) {
-      alert(day)
+            return true;
+          } else {
+            self.error = response.data;
+            
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+          self.error = "password or login wrong"
+        });
     },
+    checkUserA: function() {
+      var self = this;
+      if (localStorage["id"] && localStorage["hash"]) {
+        self.id = JSON.parse(localStorage["id"]);
+        self.hash = JSON.parse(localStorage["hash"]);
+        self.role = JSON.stringify(localStorage["id_role"]);
+        axios
+          .get(getUrl()+'Main/' + self.id)
+          .then(function(response) {
+            if (response.data !== false) {
+              //console.log(response.data.role);
+              if (self.hash === response.data.hash) {
+                
+                self.checkUser = 1;
+                return true;
+              }
+            }
+          })
+          .catch(function(error) {
+            console.log(error);
+          });
+      } else {
+        return false;
+      }
+    },
+    logoutUser: function() {
+      var self = this;
+      if (localStorage["id"] && localStorage["hash"]) {
+        delete localStorage["id"];
+        delete localStorage["hash"];
+        delete localStorage["login"];
+        delete localStorage["role"];
+        self.checkUser = "";
+        self.role = "",
+        self.$parent.getCheck();
+        return true;
+      } else {
+        return false;
+      }
     
-    showEvents(day) {
-      alert(day)
-    },
-    ltMonth() {
-      this.inst_date = new Date( this.currYear, this.currMonth-1 )
-    },
-    gtMonth() {
-      this.inst_date = new Date( this.currYear, this.currMonth+1 )
-    }
   },
-
+  created() {
+    this.checkUserA();
+  }
+  },
+  created() {
+    this.checkUserA();
+  },
+  
+    computed: {    
+   
+  },
   components: {
   }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .main {
- 
-
+   background: url(/static/img/calendar.jpg) no-repeat center center fixed;
+   background-size: cover; 
 }
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-body {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  font-family: sans-serif;
-
-}
-#app {
+.form {
+  width: 400px;
   margin: 0 auto;
-  
+  padding-top: 40px;
 }
-.head,
-.week,
-.days {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+.form-inp {
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
-#calendar {
-  box-shadow: 0 1em 10em -2em #000;
-  width: 985px;
-  text-align: center;
-  padding-bottom: 20px;
-  padding-left: 20px;
-  margin-left: 20%;
-}
-.week {
-  border-bottom: 1px solid rgba(204,204,204,0.3);
-  line-height: 2em;
-  font-size: 20px;
-  color: #0C0C0C;
-}
-.week b {
-  font-weight: normal;
-  color: #546A8C;
-  width: 145px;
-  height: 50px;
-
-}
-.days {
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-  line-height: 40px;
-  text-align: left;
-  font-size: 20px;
-  color: #0C0C0C;
-}
-time {
-  width: 135px;
-  height: 80px;
-  border: 1px solid #D4D4D4;
-}
-.currDay {
-  background: #B9B9B9;
-  border: 1px solid #546A8C;
-}
-.head {
-  background: rgba(238,238,238,0.3);
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-  line-height: 40px;
-  height: 60px;
-  font-size: 20px;
-}
-.ltMonth,
-.gtMonth {
-  cursor: pointer;
-  padding: 0 1em;
-  background: rgba(238,238,238,0.3);
-  font-size: 20px;
-}
-.ltMonth:hover,
-.gtMonth:hover {
-  background: rgba(238,238,238,0.2);
-  color: #f00;
-  font-size: 24px;
-}
-
 
 
 </style>
