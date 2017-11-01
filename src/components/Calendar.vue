@@ -36,7 +36,7 @@
     
       <div class="row">
         <div class="booker-but">
-         <button class="btn btn-btn btn-warning">Book it</button>
+          <router-link :to="'/boardroom/'+activeRoomId"><button class="btn btn-btn btn-warning">Book it</button></router-link>
         </div>
         <div class="booker-but">
          <button class="btn btn-btn btn-warning">Employee List</button>
@@ -54,6 +54,7 @@ export default {
     return {
         rooms: '',
       counter: 2,
+      activeRoomId: '',
       typeC:'',
       inst_date: new Date(),
       daysSun: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
@@ -71,13 +72,11 @@ export default {
        setActiveRoom: function(id){
       var self = this
       self.activeRoomId = id
-      alert(self.activeRoomId)
     },
        getRooms() {
             var self = this;
         axios.get(getUrl()+'Room/', this.config)
         .then(function(response) {
-          console.log(response.data)
           if (response.status == 200) {
             self.rooms = response.data;
             self.activeRoomId = self.rooms[0].id
@@ -109,13 +108,7 @@ export default {
     }
   },
     computed: {
-          events() {
-               var self = this
-              let mokData = [
-                  {description: 'event2', i:self.currDay},
-                  ]
-                  return mokData.filter(event=>event.i)
-          }, 
+
     currYear() {
       var self = this
       return self.inst_date.getFullYear()
@@ -154,6 +147,7 @@ export default {
       EventForm
   },
   created() {
+      console.log('her');
        this.daysInMonth(),
        this.getRooms()
   }
