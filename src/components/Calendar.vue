@@ -1,9 +1,7 @@
 <template>
   <div class="main container-fluid">
     <div class="boardroom-list">
-      <button class="btn btn-success">Boardroom 1 </button>
-      <button class="btn btn-success">Boardroom 2 </button>
-      <button class="btn btn-success">Boardroom 3 </button>
+      <button v-for="room in rooms" @click="setActiveRoom(room.id)" class="btn btn-success">{{room.name}} </button>
     </div>
 
     <div class="ch-year ">
@@ -18,8 +16,8 @@
           <div class="week"><b v-for="day in daysSun">{{day}}</b></div>
               <div class="days">
                 <time v-if="nullWeek !==7" v-for="blank in nullWeek">&nbsp;</time>
-                <time v-for="i in daysInMonth" :class="{currDay: i == currDay}"> 
-                {{i}}
+                <time v-for="(i, index) in days" :class="{currDay: i == currDay}"> 
+                    {{i}} 
                 </time>
               </div>
           </div>
@@ -27,12 +25,13 @@
           <div class="week"><b v-for="day in daysMon">{{day}}</b></div>
               <div class="days">
                 <time v-for="blank in nullWeek1">&nbsp;</time>
-                <time v-for="i in daysInMonth" :class="{currDay: i == currDay}"> 
+                <time v-for="i in days" :class="{currDay: i == currDay}"> 
                   {{i}} 
                 </time>
               </div>
           </div>
       </div>
+      <event-form></event-form>
     </div>
     
       <div class="row">
@@ -48,16 +47,19 @@
 </template>
 <script>
 import axios from "axios";
+import EventForm from './EventForm'
 export default {
   name: "Calendar",
   data() {
     return {
+        rooms: '',
       counter: 2,
       typeC:'',
       inst_date: new Date(),
       daysSun: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       daysMon: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
       months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
+      days: '',
       config: {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -66,6 +68,37 @@ export default {
     };
   },
    methods: {
+       setActiveRoom: function(id){
+      var self = this
+      self.activeRoomId = id
+      alert(self.activeRoomId)
+    },
+       getRooms() {
+            var self = this;
+        axios.get(getUrl()+'Room/', this.config)
+        .then(function(response) {
+          console.log(response.data)
+          if (response.status == 200) {
+            self.rooms = response.data;
+            self.activeRoomId = self.rooms[0].id
+          } else {
+            self.errors = response.data;
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+
+       },
+        daysInMonth() {
+      var self = this
+      var days = []
+      var countD = new Date(self.currYear, self.currMonth+1, 0).getDate();
+     for(var i=0 ; i < countD ; i++) {
+          days.push(i+1)
+      }
+      self.days = days
+    },
     ltMonth() {
       var self = this
       self.inst_date = new Date( self.currYear, self.currMonth-1 )
@@ -75,7 +108,14 @@ export default {
       self.inst_date = new Date( self.currYear, self.currMonth+1 )
     }
   },
-    computed: {    
+    computed: {
+          events() {
+               var self = this
+              let mokData = [
+                  {description: 'event2', i:self.currDay},
+                  ]
+                  return mokData.filter(event=>event.i)
+          }, 
     currYear() {
       var self = this
       return self.inst_date.getFullYear()
@@ -95,10 +135,7 @@ export default {
         return now.getDate()
       } 
     },
-    daysInMonth() {
-      var self = this
-      return new Date(self.currYear, self.currMonth+1, 0).getDate();
-    },
+   
     nullWeek() {
       var self = this
       var res =  new Date(self.currYear, self.currMonth, 0).getDay()+1;
@@ -114,6 +151,11 @@ export default {
     }
   },
   components: {
+      EventForm
+  },
+  created() {
+       this.daysInMonth(),
+       this.getRooms()
   }
 };
 </script>
