@@ -5,7 +5,9 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import Calendar from '@/components/Calendar'
 import Boardroom from '@/components/Boardroom'
-
+import Employe from '@/components/Employe'
+import AddUser from '@/components/AddUser'
+import EditUser from '@/components/EditUser'
 
 Vue.use(Router)
 Vue.use(VueAxios, axios)
@@ -18,15 +20,19 @@ export default new Router({
       component: Main
     },
     {
-      path: '/calendar',
-      name: 'Calendar',
-      component: Calendar
-    },
-    {
       path: '/boardroom/:id',
       name: 'Boardroom',
       component: Boardroom
     },
+    {
+      path: '/employeelist/',
+      name: 'Employe',
+      component: Employe,
+      children: [
+        { path: 'adduser', component: AddUser },
+        { path: 'edituser/:id', component: EditUser },
+      ]
+    }
   
   ]
 })

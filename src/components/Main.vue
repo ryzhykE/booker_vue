@@ -1,20 +1,15 @@
 
 <template>
   <div class="main">
+    <p class="alert-danger">{{error}}</p>
     <div v-if="checkUser == ''">
       <login></login>
     </div>
     <div v-else>
-      <div class="header">
-        Hello, <strong>{{user.login}}</strong>!
-        <p>
-          <button v-on:click="logout()" class="btn btn-info">logout</button>
-        </p>
+      <div class="header col-md-1">
+          <button v-on:click="logoutUser()" class="btn btn-info">logout</button>
       </div>
-      <calendar></calendar>
-      <div class="footer">
-          &nbsp;
-      </div>
+      <calendar :role="role"></calendar>
     </div>
   </div>
 </template>
@@ -28,13 +23,44 @@ export default {
   data () {
     return {
       checkUser: '',
+      error:'',
       role: '',
       user: {},
     }
   },
   methods: {
-    logout: function(){
-      var self = this 
+     checkUsers: function()
+    {
+      var self = this
+      if (localStorage['user'])
+      {
+        self.user = JSON.parse(localStorage['user'])
+        axios.get(getUrl() + 'user/' + self.user.id + '/')
+            .then(function (response) {
+              if (response.status == 200){
+                  self.role = response.data.id_role
+                  self.checkUser = 1;
+                  return true
+              }
+              else {
+                delete localStorage['user']
+                self.errorMsg = response.data
+                self.checkUser = '';
+                return false
+              }
+            })
+            .catch(function (error) {
+              self.error = error
+            });
+      }
+      else
+      {
+        self.checkUser = ''
+        return false
+      }
+    },
+     logoutUser: function() {
+          var self = this 
       if (localStorage['user'])
       {
         delete localStorage['user']
@@ -46,50 +72,10 @@ export default {
       {
         return false
       }
-    },
-    checkUserFun: function()
-    {
-      var self = this
-      if (localStorage['user'])
-      {
-        self.user = JSON.parse(localStorage['user'])
-        axios.get(getUrl() + 'users/' + self.user.id)
-            .then(function (response) {
-              // console.log(response.data)
-              if (Array.isArray(response.data)){
-                if (self.user.hash === response.data[0].hash)
-                {
-                    self.checkUser = 1;
-                    self.user.login = response.data[0].login
-                    self.user.role = response.data[0].role
-                    return true
-                }
-                else
-                {
-                  delete localStorage['user']
-                  self.checkUser = ''
-                  return false
-                }
-              }
-              else {
-                delete localStorage['user']
-                self.errorMsg = response.data
-                return false
-              }
-            })
-            .catch(function (error) {
-              console.log(error)
-            });
-      }
-      else
-      {
-        self.checkUser = ''
-        return false
-      }
-    }
+      },
   },
   created(){
-    this.checkUserFun()
+    this.checkUsers()
   },
   components: {
     'Login': Login,
@@ -98,7 +84,9 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  .header {
+    margin-top: 10px;
 
+  }
 </style>

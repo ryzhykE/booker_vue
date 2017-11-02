@@ -9,7 +9,7 @@
       <button class="btn btn-primary" v-on:click="counter  = 1">First day Mon</button>
     </div>
 
-    <div id="app" class="">
+    <div id="app" class="col-md-9">
       <div id="calendar">
         <div class="head"><b class="ltMonth" @click="ltMonth">«</b><b>{{months[currMonth]}} {{currYear}}</b><b class="gtMonth" @click="gtMonth">»</b></div>
           <div v-if="counter == 2">
@@ -31,25 +31,24 @@
               </div>
           </div>
       </div>
-      <event-form></event-form>
     </div>
-    
-      <div class="row">
+      <div class="row col-md-2">
         <div class="booker-but">
           <router-link :to="'/boardroom/'+activeRoomId"><button class="btn btn-btn btn-warning">Book it</button></router-link>
         </div>
         <div class="booker-but">
-         <button class="btn btn-btn btn-warning">Employee List</button>
+            <router-link v-if="role == '1'" to="/employeelist">
+                <button class="btn btn-btn btn-warning">Employee List</button>
+            </router-link>
         </div>
-      </div>
-    
+      </div>  
   </div>
 </template>
 <script>
 import axios from "axios";
-import EventForm from './EventForm'
 export default {
   name: "Calendar",
+  props: ['role'],
   data() {
     return {
         rooms: '',
@@ -144,10 +143,9 @@ export default {
     }
   },
   components: {
-      EventForm
+     
   },
   created() {
-      console.log('her');
        this.daysInMonth(),
        this.getRooms()
   }
