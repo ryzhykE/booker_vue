@@ -94,7 +94,7 @@
                   </div>   
                 </div> 
                 <div class="new-user">
-                   <div class="form-group ">
+                   <div class="form-group" v-if="is_recur == 1">
                       <label>6. If it is recurring, specify weekly, bi-weekly, or monthly.</label>
                       <div class="radio">
                         <label>
@@ -119,15 +119,12 @@
                         <div class="row">
                           <div  class="col-sm-1 col-md-1"> 
                             <input class="form-control num_only" v-model="duration"
-                                  @keydown="durationCheck" 
-                                  oninput="if(this.value>10) this.value = this.value%10  "/>
-                          </div>
-                          <div  class="col-sm-2 col-md-2"> 
+                                 />
+                          
                             <label v-if="recur_period=='weekly'">duration(max 4 weeks)</label>
                             <label v-if="recur_period=='bi-weekly'">duration(max 2 weeks)</label>
                             <label v-if="recur_period=='monthly'">duration(max 1 month)</label>
-                          </div>
-                        <div  class="col-sm-9 col-md-9"> </div>
+                            </div>
                         </div>
                   </div>   
                 </div> 
@@ -154,6 +151,8 @@ export default {
     },
      data() {
     return {
+      duration: 1,
+      recur_period: '',
       is_recur: 1,
       minute_end: '',
       hour_start: '',
@@ -210,7 +209,6 @@ export default {
      
     },
   },
-  
     computed: {
        daysInMonth: function() {
       var self = this
@@ -222,20 +220,18 @@ export default {
        return days
       console.log(days)
     },
-
-     is_recurive_event: function(){
-      is_recurive_eventif(this.is_recur=='1') 
-      return true
-      return false
-    },
-
-    
-    
-    
-    
-   
-    
- 
+    recurring: function(){
+      var self = this
+      if(self.is_recur=='1')
+      {
+        self.is_recur = 1
+      }
+      else
+      {
+        self.is_recur = 0
+      } 
+      
+    }
   },
   created() {
        this.getUser()
