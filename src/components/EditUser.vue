@@ -4,57 +4,33 @@
         {{ error }}
       </div>
       <div class="form">
-          <div class="form-group">
-                <label class="control-label col-sm-2" for="first_name">Name: </label>
-                <div class="col-sm-10 ">
-                    <input class="form-control" v-model="userInfo.first_name" type="text" :value="userInfo.first_name" name="first_name">
+           <div class="form-group">
+                    <label class="control-label col-sm-2" for="login">Login: </label>
+                    <div class="col-sm-10">
+                        <input v-model="userInfo.login" type="text" class="form-control" id="login" placeholder="Enter login" name="login">
+                    </div>
                 </div>
-          </div>
-          <div class="form-group">
-            <label class="control-label col-sm-2" for="last_name">Surname: </label>
-            <div class="col-sm-10">
-                <input v-model="userInfo.last_name"  :value="userInfo.last_name" type="last_name" class="form-control" id="last_name" name="last_name">
-            </div>
-          </div>
-            
-            <div class="form-group">
-                <label class="control-label col-sm-2" for="login">Login: </label>
-                <div class="col-sm-10">
-                    <input v-model="userInfo.login" :value="userInfo.login" type="login" class="form-control" id="login" name="login">
-                </div>
-            </div>
 
-            <div class="form-group">
-                <label class="control-label col-sm-2" for="discount">Discount: </label>
-                <div class="col-sm-10">
-                    <input v-model="userInfo.discount" :value="userInfo.discount" type="text" class="form-control" id="discount" name="discount">
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="email">Email: </label>
+                    <div class="col-sm-10">
+                        <input v-model="userInfo.email" type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label class="control-label col-sm-2" for="pass">Password: </label>
-                <div class="col-sm-10">
-                    <input v-model="userInfo.pass" type="password" class="form-control" name="pass">
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="pass">Password: </label>
+                    <div class="col-sm-10">
+                        <input v-model="pass" type="password" class="form-control" id="pass" placeholder="Enter password" name="pass">
+                    </div>
                 </div>
-            </div>
-             <div class="form-group">
-                <label class="control-label col-sm-2" for="activ">Activ: </label>
-                <div class="col-sm-10">
-                    <select class="form-control" v-model="userInfo.active">
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
+
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="pass_confirm">Password Conferm: </label>
+                    <div class="col-sm-10">
+                        <input v-model="pass_confirm" type="password" class="form-control" id="pass_confirm" placeholder="Conferm password" name="pass">
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2" for="role">Role: </label>
-                <div class="col-sm-10">
-                    <select class="form-control" v-model="userInfo.role">
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-            </div>
             <button class="btn btn-success save-user" @click="saveUser()">Update User</button>
     </div>
   </div>
@@ -74,6 +50,8 @@ export default {
     return {
       user:'',
       userInfo: [],
+      pass:'',
+      pass_confirm:'',
       error:'',
       showOrdrers: false,
       orderMsg: '',
@@ -85,42 +63,48 @@ export default {
     }
   },
   methods:{
+            getUser: function(id) {
+        var self = this;
+        axios
+          .get(getUrl()+'user/' +id+'/',self.config )
+          .then(function(response) {
+            if (response.data !== false) {
+              self.userInfo = response.data;
+            }
+          })
+          .catch(function(error) {
+            console.log(error);
+          });
+     
+        },
       saveUser: function(){
         var self = this
           self.error = ''
-          if (self.userInfo.first_name && self.userInfo.last_name && self.userInfo.pass)
+          if (self.userInfo.login && self.userInfo.email && self.pass)
           {
-              if (self.userInfo.first_name.length <= 3)
-              {
-                self.error = 'First name should be at least 3 characters'
-                return false
-              }
-               
-              if (self.userInfo.last_name.length <= 2)
-              {
-                self.error = 'Last name should be at least 3 characters'
-                return false
-              }
-               
-              if (self.userInfo.pass.length <= 3)
-              {
-                self.error = 'Password should be at least 4 characters'
-                return false
-              }
-             
+            
+            if (self.userInfo.login.length < 2) {
+            self.error = "Login should be at least 4 characters"
+            return false
+            }
+            if (self.pass.length < 5) {
+            self.error = "Password should be at least 4 characters"
+            return false
+            }
+            if (self.pass != self.pass_confirm) {
+              self.error = "Password fields do not match";
+              return false
+            }
               var data = {}
               data.id = self.userInfo.id
-              data.first_name = self.userInfo.first_name
-              data.last_name = self.userInfo.last_name
               data.login = self.userInfo.login
-              data.discount = self.userInfo.discount
-              data.pass = self.userInfo.pass
-              data.role = self.userInfo.role
-              data.active = self.userInfo.active
-             //console.log(data);
-                axios.put(getUrl()+'user/', data, self.config)
+              data.email = self.userInfo.email
+              data.pass = self.pass
+             console.log(data);
+                axios.put(getUrl()+'admin/', data, self.config)
                     .then(function (response) {
                     self.getUser(self.$route.params.id)
+                    self.$parent.getUsersList(self.$route.params.id)
                     self.error = 'User update'
                    
                 })
@@ -132,21 +116,7 @@ export default {
               self.errorMsg =  'Check all fields!'
           }
     },
-          getUser: function(id) {
-        var self = this;
-        axios
-          .get(getUrl()+'user/' +id,self.config )
-          .then(function(response) {
-            if (response.data !== false) {
-              //console.log(response.data);
-              self.userInfo = response.data;
-            }
-          })
-          .catch(function(error) {
-            console.log(error);
-          });
-     
-    }
+    
     
   },
    created(){

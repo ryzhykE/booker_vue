@@ -63,7 +63,6 @@ export default {
          self.error = "Login more 4 characters"
          return false
         }
-        
       axios
         .put(
           getUrl()+'User/',
@@ -74,7 +73,6 @@ export default {
         )
         .then(function(response) {
           self.error = "";
-          //console.log(response.data);
           if (response.data.id && response.data.hash) {
             self.$parent.user.id = response.data.id
             self.$parent.user.hash = response.data.hash 
@@ -87,7 +85,7 @@ export default {
           }
         })
         .catch(function(error) {
-          self.error = "password or login wrong"
+          self.error = "Password or login wrong"
         });
     },
   created() {

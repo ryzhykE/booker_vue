@@ -64,7 +64,7 @@
                 var self = this;
                 self.addUser = "";
                 axios
-                    .get(getUrl() + "user /")
+                    .get(getUrl() + "user/")
                     .then(function(response) {
                     if (response.status == 200){
                          self.users = response.data;  
@@ -75,10 +75,7 @@
                         return false
                     }     
                 })
-                .catch(function(error) {
-                    self.error = error ;
-    
-                });
+                
             },  
             checkUserFun: function() {
                 var self = this;

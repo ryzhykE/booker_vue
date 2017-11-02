@@ -100,6 +100,7 @@ export default {
               if (response.data === "Register success")
                 {
                     self.error = response.data
+                    self.$router.push({ path: '/employeelist/'})
                     self.$parent.getUsersList()
                 }
                 else

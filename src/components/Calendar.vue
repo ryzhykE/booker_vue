@@ -32,10 +32,11 @@
           </div>
       </div>
     </div>
-      <div class="row col-md-2">
+      <div class="row">
         <div class="booker-but">
           <router-link :to="'/boardroom/'+activeRoomId"><button class="btn btn-btn btn-warning">Book it</button></router-link>
         </div>
+        {{role}}gffdgsd
         <div class="booker-but">
             <router-link v-if="role == '1'" to="/employeelist">
                 <button class="btn btn-btn btn-warning">Employee List</button>
