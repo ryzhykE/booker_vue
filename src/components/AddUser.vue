@@ -6,25 +6,28 @@
                 {{ error }}
             </div>
         
-                <div class="form-group">
+                <div class="form-group" v-on:submit.prevent="registration">
                     <label class="control-label col-sm-2" for="login">Login: </label>
                     <div class="col-sm-10">
                         <input v-model="login" type="text" class="form-control" id="login" placeholder="Enter login" name="login">
                     </div>
+                    <p class="help-block" v-show="!validation.login">Login cannot be empty </p>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group"  v-on:submit.prevent="registration">
                     <label class="control-label col-sm-2" for="email">Email: </label>
                     <div class="col-sm-10">
                         <input v-model="email" type="email" class="form-control" id="email" placeholder="Enter email" name="email">
                     </div>
+                     <p class="help-block" v-show="!validation.email">Please provide a valid email address. </p>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group"  v-on:submit.prevent="registration">
                     <label class="control-label col-sm-2" for="pass">Password: </label>
                     <div class="col-sm-10">
                         <input v-model="pass" type="password" class="form-control" id="pass" placeholder="Enter password" name="pass">
                     </div>
+                    <p class="help-block" v-show="!validation.pass">Password cannot be empty </p>
                 </div>
 
                 <div class="form-group">
@@ -33,7 +36,6 @@
                         <input v-model="pass_confirm" type="password" class="form-control" id="pass_confirm" placeholder="Conferm password" name="pass">
                     </div>
                 </div>
-
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
                         <button v-on:click="registration()" type="submit" class="btn btn-default">Submit</button>
@@ -46,6 +48,7 @@
 </template>
 
 <script>
+var emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 import axios from "axios";
 export default {
   name: "register",
@@ -64,7 +67,22 @@ export default {
       }
     };
   },
-  methods: {
+  computed: {
+    validation: function () {
+      return {
+       login: !!this.login.trim(),
+       pass: !!this.pass.trim(),
+        email: emailRE.test(this.email)
+      }
+    },
+    isValid: function () {
+      var validation = this.validation
+      return Object.keys(validation).every(function (key) {
+        return validation[key]
+      })
+    }
+  },
+  methods: {    
     registration: function() {
       var self = this;
       if (
@@ -73,6 +91,7 @@ export default {
         self.pass &&
         self.pass_confirm
       ) {
+      
         if (self.pass.length < 5) {
          self.error = "Password should be at least 4 characters"
         return false
@@ -85,7 +104,8 @@ export default {
           self.error = "Password fields do not match";
           return false
         }
-
+        
+        if (self.isValid) {
           var data = new FormData();
           data.append("email", self.email);
           data.append("login", self.login);
@@ -113,9 +133,13 @@ export default {
                 self.error = response.data
               console.log(error);
             });
+            }
+            else {
+            self.error = "Enter field!";
+            }
     
       } else {
-        self.error = "Enter field!";
+        
       }
     }
   }

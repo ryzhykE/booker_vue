@@ -18,9 +18,10 @@
                 <tbody>
                 <tr v-for="(user, index) in users" :value="user.id" class="tr-list">
                     <td>{{user.login}}</td>
-                    <td>{{user.email}}</td>
+                    <td><a :href="'mailto:' + user.email">{{user.email}}</a></td>
                     <td><button class="btn btn-warning" @click="eddUser(user.id)">Edit user</button></td>
-                    <td><button class="btn alert-danger" v-on:click="test(user.id)">Remove</button></td>
+                    <td v-if="user.id_role != 1"><button class="btn alert-danger" v-on:click="deleteUser(user.id)">Remove</button></td>
+                    <td v-else>Admin</td>
                 </tr>
                 </tbody>
             </table>
@@ -41,7 +42,6 @@
         data() {
             return {
                 error: "",
-                loginU: '',
                 addUser: "",
                 editUser: "",
                 editUserName: "",
@@ -51,15 +51,31 @@
     
         },
         methods: {
+           
+             deleteUser: function(id){
+                var self = this
+                self.error = ''
+                axios.delete(getUrl() + 'user/' + id+'/')
+                .then(function (response) {
+                if (response.data === 1)
+                {
+                self.error = 'User delete!'
+               self.getUsersList()  
+               }
+                else{
+                self.errorMsg = response.data
+                return false;
+                 }
+                })
+                .catch(function (error) {
+                     console.log(error);
+                 })
+                },
             eddUser: function(user){
                 var self = this
                 self.$router.push({ path: '/employeelist/edituser/'+ user })
-            },
-            test:function(str){
-      var self = this
-      alert(str)
-      
-    },
+                },
+            
             getUsersList: function() {
                 var self = this;
                 self.addUser = "";

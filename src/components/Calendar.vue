@@ -36,7 +36,6 @@
         <div class="booker-but">
           <router-link :to="'/boardroom/'+activeRoomId"><button class="btn btn-btn btn-warning">Book it</button></router-link>
         </div>
-        {{role}}gffdgsd
         <div class="booker-but">
             <router-link v-if="role == '1'" to="/employeelist">
                 <button class="btn btn-btn btn-warning">Employee List</button>

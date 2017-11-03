@@ -7,7 +7,8 @@
            <div class="form-group">
                     <label class="control-label col-sm-2" for="login">Login: </label>
                     <div class="col-sm-10">
-                        <input v-model="userInfo.login" type="text" class="form-control" id="login" placeholder="Enter login" name="login">
+                        <input v-model="userInfo.login"  type="text" class="form-control" id="login" placeholder="Enter login" name="login">
+                        <p class="help-block" v-show="!validation.login">Login cannot be empty </p>
                     </div>
                 </div>
 
@@ -15,6 +16,7 @@
                     <label class="control-label col-sm-2" for="email">Email: </label>
                     <div class="col-sm-10">
                         <input v-model="userInfo.email" type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+                         <p class="help-block" v-show="!validation.email">Please provide a valid email address. </p>
                     </div>
                 </div>
 
@@ -22,6 +24,7 @@
                     <label class="control-label col-sm-2" for="pass">Password: </label>
                     <div class="col-sm-10">
                         <input v-model="pass" type="password" class="form-control" id="pass" placeholder="Enter password" name="pass">
+                        <p class="help-block" v-show="!validation.pass">Password cannot be empty </p>
                     </div>
                 </div>
 
@@ -37,6 +40,7 @@
 </template>
 
 <script>
+var emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 import axios from "axios";
 export default {
   name: 'EditUser',
@@ -95,6 +99,8 @@ export default {
               self.error = "Password fields do not match";
               return false
             }
+
+            if (self.isValid) {
               var data = {}
               data.id = self.userInfo.id
               data.login = self.userInfo.login
@@ -111,9 +117,14 @@ export default {
                     .catch(function (error) {
                     console.log(error)
                 })
+
+            }
+            else {
+                self.error =  'Check all fields!'
+            }
           }
           else{
-              self.errorMsg =  'Check all fields!'
+              self.error =  'Check all fields!'
           }
     },
     
@@ -123,6 +134,19 @@ export default {
     this.getUser(this.$route.params.id)
   },
   computed:{
+      validation: function () {
+      return {
+       login: !!this.userInfo.login.trim(),
+       pass: !!this.pass.trim(),
+        email: emailRE.test(this.userInfo.email)
+      }
+    },
+    isValid: function () {
+      var validation = this.validation
+      return Object.keys(validation).every(function (key) {
+        return validation[key]
+      })
+    }
   },
   components:{
   }
