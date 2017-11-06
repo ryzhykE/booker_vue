@@ -68,6 +68,7 @@ export default {
     };
   },
   computed: {
+   
     validation: function () {
       return {
        login: !!this.login.trim(),
@@ -138,8 +139,6 @@ export default {
             self.error = "Enter field!";
             }
     
-      } else {
-        
       }
     }
   }

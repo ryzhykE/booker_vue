@@ -43,131 +43,121 @@
 var emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 import axios from "axios";
 export default {
-  name: 'EditUser',
-      beforeRouteUpdate(to, from, next) {
-        this.getUser(to.params.id)
-        this.showOrdrers = false
-        this.orderMsg = ''
-        next()
-    },
-  data () {
+  name: "EditUser",
+  beforeRouteUpdate(to, from, next) {
+    this.getUser(to.params.id);
+    this.showOrdrers = false;
+    this.orderMsg = "";
+    next();
+  },
+  data() {
     return {
-      user:'',
+      user: "",
       userInfo: [],
-      pass:'',
-      pass_confirm:'',
-      error:'',
+      pass: "",
+      pass_confirm: "",
+      error: "",
       showOrdrers: false,
-      orderMsg: '',
-       config: {
+      orderMsg: "",
+      config: {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         }
-      },
-    }
-  },
-  methods:{
-            getUser: function(id) {
-        var self = this;
-        axios
-          .get(getUrl()+'user/' +id+'/',self.config )
-          .then(function(response) {
-            if (response.data !== false) {
-              self.userInfo = response.data;
-            }
-          })
-          .catch(function(error) {
-            console.log(error);
-          });
-     
-        },
-      saveUser: function(){
-        var self = this
-          self.error = ''
-          if (self.userInfo.login && self.userInfo.email && self.pass)
-          {
-            
-            if (self.userInfo.login.length < 2) {
-            self.error = "Login should be at least 4 characters"
-            return false
-            }
-            if (self.pass.length < 5) {
-            self.error = "Password should be at least 4 characters"
-            return false
-            }
-            if (self.pass != self.pass_confirm) {
-              self.error = "Password fields do not match";
-              return false
-            }
-
-            if (self.isValid) {
-              var data = {}
-              data.id = self.userInfo.id
-              data.login = self.userInfo.login
-              data.email = self.userInfo.email
-              data.pass = self.pass
-             console.log(data);
-                axios.put(getUrl()+'admin/', data, self.config)
-                    .then(function (response) {
-                    self.getUser(self.$route.params.id)
-                    self.$parent.getUsersList(self.$route.params.id)
-                    self.error = 'User update'
-                   
-                })
-                    .catch(function (error) {
-                    console.log(error)
-                })
-
-            }
-            else {
-                self.error =  'Check all fields!'
-            }
-          }
-          else{
-              self.error =  'Check all fields!'
-          }
-    },
-    
-    
-  },
-   created(){
-    this.getUser(this.$route.params.id)
-  },
-  computed:{
-      validation: function () {
-      return {
-       login: !!this.userInfo.login.trim(),
-       pass: !!this.pass.trim(),
-        email: emailRE.test(this.userInfo.email)
       }
+    };
+  },
+  methods: {
+    getUser: function(id) {
+      var self = this;
+      axios
+        .get(getUrl() + "user/" + id + "/", self.config)
+        .then(function(response) {
+          if (response.data !== false) {
+            self.userInfo = response.data;
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
     },
-    isValid: function () {
-      var validation = this.validation
-      return Object.keys(validation).every(function (key) {
-        return validation[key]
-      })
+    saveUser: function() {
+      var self = this;
+      self.error = "";
+      if (self.userInfo.login && self.userInfo.email && self.pass) {
+        if (self.userInfo.login.length < 2) {
+          self.error = "Login should be at least 4 characters";
+          return false;
+        }
+        if (self.pass.length < 5) {
+          self.error = "Password should be at least 4 characters";
+          return false;
+        }
+        if (self.pass != self.pass_confirm) {
+          self.error = "Password fields do not match";
+          return false;
+        }
+
+        if (self.isValid) {
+          var data = {};
+          data.id = self.userInfo.id;
+          data.login = self.userInfo.login;
+          data.email = self.userInfo.email;
+          data.pass = self.pass;
+          axios
+            .put(getUrl() + "admin/", data, self.config)
+            .then(function(response) {
+              self.getUser(self.$route.params.id);
+              self.$parent.getUsersList(self.$route.params.id);
+              self.error = "User update";
+            })
+            .catch(function(error) {
+              console.log(error);
+            });
+        } else {
+          self.error = "Check all fields!";
+        }
+      } else {
+        self.error = "Check all fields!";
+      }
     }
   },
-  components:{
-  }
-}
+  created() {
+    this.getUser(this.$route.params.id);
+  },
+  computed: {
+    validation: function() {
+      return {
+        login: !!this.userInfo.login.trim(),
+        pass: !!this.pass.trim(),
+        email: emailRE.test(this.userInfo.email)
+      };
+    },
+    isValid: function() {
+      var validation = this.validation;
+      return Object.keys(validation).every(function(key) {
+        return validation[key];
+      });
+    }
+  },
+  components: {}
+};
 </script>
 
 
 <style scoped>
 .form {
-    max-width: 600px;
+  max-width: 600px;
 }
 .form-group {
-    padding-top: 30px; 
+  padding-top: 30px;
 }
 .select-user {
-    width: 200px;
+  width: 200px;
 }
 .save-user {
-    margin-top: 25px;
-    width: 160px;
-    height: 40px;
-    font: 1.3em sans-serif;
+  margin-top: 25px;
+  width: 160px;
+  height: 40px;
+  font: 1.3em sans-serif;
 }
 </style>

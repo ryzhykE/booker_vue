@@ -1,9 +1,15 @@
 <template>
   <div class="main container-fluid">
+    <section id="app" class="section">
+      <h3 class="title is-3 shadow" v-text="message"></h3>
+      <p class="time shadow" v-text="currentTime"></p>
+    </section>
     <div class="boardroom-list">
-      <button v-for="room in rooms" @click="setActiveRoom(room.id)" class="btn btn-success">{{room.name}} </button>
+      <button v-for="room in rooms" @click="setActiveRoom(room.id)" class="btn btn-success"
+      :class="{activeRoom: room.id == activeRoomId}" >
+        {{room.name}} 
+      </button>
     </div>
-
     <div class="ch-year ">
       <button class="btn btn-primary"v-on:click="counter  = 2">First day Su</button>
       <button class="btn btn-primary" v-on:click="counter  = 1">First day Mon</button>
@@ -16,8 +22,13 @@
           <div class="week"><b v-for="day in daysSun">{{day}}</b></div>
               <div class="days">
                 <time v-if="nullWeek !==7" v-for="blank in nullWeek">&nbsp;</time>
-                <time v-for="(i, index) in days" :class="{currDay: i == currDay}"> 
-                    {{i}} 
+                <time v-for="(i, index) in calendar" :class="{currDay: i == currDay}"> 
+                    {{i[0]}}
+                    <ul class="list-time" v-if="eventsMonth.length>0 ">
+                      <li  v-if="i[1]" v-for="ev in i[1]" >
+                        <router-link to="#" class="link">{{ev.timeString}}</router-link>
+                      </li> 
+                    </ul>
                 </time>
               </div>
           </div>
@@ -25,8 +36,13 @@
           <div class="week"><b v-for="day in daysMon">{{day}}</b></div>
               <div class="days">
                 <time v-for="blank in nullWeek1">&nbsp;</time>
-                <time v-for="i in days" :class="{currDay: i == currDay}"> 
-                  {{i}} 
+                <time v-for="(i, index) in calendar" :class="{currDay: i == currDay}"> 
+                    {{i[0]}}
+                    <ul class="list-time" v-if="eventsMonth.length>0 ">
+                      <li v-if="i[1]" v-for="ev in i[1]" >
+                        <router-link to="#" class="link">{{ev.timeString}}</router-link>
+                      </li> 
+                    </ul>
                 </time>
               </div>
           </div>
@@ -48,18 +64,34 @@
 import axios from "axios";
 export default {
   name: "Calendar",
-  props: ['role'],
+  props: ["role"],
   data() {
     return {
-        rooms: '',
+      message: 'Current Time:',
+    currentTime: null,
+      rooms: "",
       counter: 2,
-      activeRoomId: '',
-      typeC:'',
+      activeRoomId: "1",
+      typeC: "",
       inst_date: new Date(),
-      daysSun: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-      daysMon: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
-      days: '',
+      daysSun: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      daysMon: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      months: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "June",
+        "July",
+        "Aug",
+        "Sept",
+        "Oct",
+        "Nov",
+        "Dec"
+      ],
+      days: [],
+      eventsMonth: [],
       config: {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -67,114 +99,251 @@ export default {
       }
     };
   },
-   methods: {
-       setActiveRoom: function(id){
-      var self = this
-      self.activeRoomId = id
+  methods: {
+     updateCurrentTime() {
+      var self = this;
+      var d = new Date()
+      var h
+       if(d.getHours()<10) {
+       h = "0" + d.getHours()
+      }
+      else {
+        h = d.getHours()
+      }
+      var m 
+      if(d.getMinutes()<10) {
+       m = "0" + d.getMinutes()
+      }
+      else {
+        m = d.getMinutes()
+      }
+      var s
+      if(d.getSeconds()<10) {
+       s = "0" + d.getSeconds()
+      }
+      else {
+        s = d.getSeconds()
+      }
+      
+      self.currentTime = h + ' : ' + m +' : ' + s;
     },
-       getRooms() {
-            var self = this;
-        axios.get(getUrl()+'Room/', this.config)
+    
+    addEventsCalendar: function() {
+      var self = this;
+        self.eventsMonth.forEach(function(event) {
+          var dateEvStart = new Date(event.time_start);
+          var dateEvEnd = new Date(event.time_end);
+          var date = new Date(self.currYear, self.currMonth + 1);
+          var str = "";
+          var start = dateEvStart.getHours();
+          var end = dateEvEnd.getHours();
+          if (dateEvStart.getMinutes() == 0) {
+            start += ":" + dateEvStart.getMinutes() + "0-";
+          } else {
+            start += ":" + dateEvStart.getMinutes() + "-";
+          }
+          if (dateEvEnd.getMinutes() == 0) {
+            end += ":" + dateEvEnd.getMinutes() + "0";
+          } else {
+            end += ":" + dateEvEnd.getMinutes();
+          }
+          str = start + end;
+          event.timeString = str
+        });
+    },
+    getEventsMonth: function() {
+      var self = this;
+      self.eventsMonth = [];
+      self.error = "";
+      var year = self.currYear;
+      var month = self.currMonth + 1;
+      var room = self.activeRoomId;
+      axios
+        .get(
+          getUrl() + "events/" + room + "/" + year + "/" + month + "/",
+          this.config
+        )
         .then(function(response) {
           if (response.status == 200) {
-            self.rooms = response.data;
-            self.activeRoomId = self.rooms[0].id
+            self.eventsMonth = response.data;
+            self.addEventsCalendar();
+            self.daysInD();
           } else {
-            self.errors = response.data;
+            self.error = response.data;
           }
         })
         .catch(function(error) {
           console.log(error);
         });
-
-       },
-        daysInMonth() {
-      var self = this
-      var days = []
-      var countD = new Date(self.currYear, self.currMonth+1, 0).getDate();
-     for(var i=0 ; i < countD ; i++) {
-          days.push(i+1)
+    },
+    setActiveRoom: function(id) {
+      var self = this;
+      self.activeRoomId = id;
+      self.getEventsMonth();
+    },
+    getRooms: function() {
+      var self = this;
+      axios
+        .get(getUrl() + "Room/", this.config)
+        .then(function(response) {
+          if (response.status == 200) {
+            self.rooms = response.data;
+            self.activeRoomId = self.rooms[0].id;
+          } else {
+            self.error = response.data;
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    ltMonth: function() {
+      var self = this;
+      self.inst_date = new Date(self.currYear, self.currMonth - 1);
+      self.getEventsMonth();
+    },
+    gtMonth: function() {
+      var self = this;
+      self.inst_date = new Date(self.currYear, self.currMonth + 1);
+      self.getEventsMonth();
+    },
+      daysInD: function() {
+      var self = this;
+      var days = [];
+      var countD = new Date(self.currYear, self.currMonth + 1, 0).getDate();
+      for (var i = 0; i < countD; i++) {
+        days.push([i + 1]);
       }
-      self.days = days
+      self.days = days;
     },
-    ltMonth() {
-      var self = this
-      self.inst_date = new Date( self.currYear, self.currMonth-1 )
-    },
-    gtMonth() {
-      var self = this
-      self.inst_date = new Date( self.currYear, self.currMonth+1 )
-    }
   },
-    computed: {
-
-    currYear() {
+  computed: {
+    calendar(){
       var self = this
-      return self.inst_date.getFullYear()
+      var month = self.days
+      month.forEach(function(day){
+        self.eventsMonth.forEach(function(ev){
+          var evStart = new Date(ev.time_start)
+          var d = new Date(self.currYear, self.currMonth, day[0])
+          if(evStart.getDate() == d.getDate()){
+            if(day.length > 1){
+              day[1].push(ev)
+            }else{
+              day.push([ev])
+            }
+          }
+        })
+      })
+      return month
+    },
+    currYear() {
+      var self = this;
+      return self.inst_date.getFullYear();
     },
     currMonth() {
-      var self = this
-      return self.inst_date.getMonth()
+      var self = this;
+      return self.inst_date.getMonth();
     },
     currWD() {
-      var self = this
-      return self.inst_date.getDay()
+      var self = this;
+      return self.inst_date.getDay();
     },
     currDay() {
-      var self = this
+      var self = this;
       const now = new Date();
-      if ( self.inst_date.getMonth() == now.getMonth() && self.inst_date.getFullYear() == now.getFullYear() ) {
-        return now.getDate()
-      } 
+      if (
+        self.inst_date.getMonth() == now.getMonth() &&
+        self.inst_date.getFullYear() == now.getFullYear()
+      ) {
+        return now.getDate();
+      }
     },
-   
     nullWeek() {
-      var self = this
-      var res =  new Date(self.currYear, self.currMonth, 0).getDay()+1;
-      return res
+      var self = this;
+      var res = new Date(self.currYear, self.currMonth, 0).getDay() + 1;
+      return res;
     },
     nullWeek1() {
-       var self = this
-       var res = new Date(self.currYear, self.currMonth, 0).getDay();
-       if(res == 0) {
-         res = 1
-       }
-       return res
+      var self = this;
+      var res = new Date(self.currYear, self.currMonth, 0).getDay();
+      if (res == 0) {
+        res = 1;
+      }
+      return res;
     }
   },
-  components: {
-     
-  },
+  components: {},
   created() {
-       this.daysInMonth(),
-       this.getRooms()
+    this.addEventsCalendar();
+    this.getRooms();
+    this.getEventsMonth();
+    setInterval(() => this.updateCurrentTime(), 1 * 1000);
   }
 };
 </script>
 
 <style scoped>
+section.section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 10px;
+  background: transparent;
+}
+h3.is-3, p.time {
+  color: white;
+   background: #34155E; /* Цвет фона */
+    box-shadow: 0 0 15px white; /* Параметры тени */
+}
+
+h3.is-3:not(:last-child) {
+  margin: 0;
+  padding: 0;
+}
+
+.time {
+  font-size: 3em;
+}
+
+.main {
+  margin-top: -10px;
+   background: url(/static/img/backcalend.jpg) ;
+   background-size: cover; 
+}
+.activeRoom{
+  background-color:#399A87;
+  padding-left:20px;
+  padding-right:20px;
+  border: 2px dotted black; 
+}
+.list-time{
+list-style-type: none;
+}
+.link {
+  font-size: 15px;
+  color: #FFFFFF;
+}
 .booker-but {
   margin-top: 20px;
 }
 .boardroom-list {
   margin-top: 10px;
   margin-bottom: 20px;
-
 }
 .boardroom-list button {
-  margin-left:30px;
-  margin-right:30px;
+  margin-left: 30px;
+  margin-right: 30px;
 }
 .ch-year {
- padding-bottom: 20px;
+  padding-bottom: 20px;
 }
 .ch-year button {
- margin-left:20px;
-  margin-right:20px;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 #app {
   margin: 0 auto;
-   display: -webkit-box;
+  display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   font-family: sans-serif;
@@ -189,46 +358,46 @@ export default {
 #calendar {
   box-shadow: 0 1em 10em -2em #000;
   width: 995px;
+  min-height: 700px;
   text-align: center;
   padding-bottom: 20px;
   padding-left: 20px;
   margin-left: 10%;
 }
 .week {
-  border-bottom: 1px solid rgba(204,204,204,0.3);
+  border-bottom: 1px solid rgba(204, 204, 204, 0.3);
   line-height: 2em;
   font-size: 20px;
-  color: #0C0C0C;
+  color: #0c0c0c;
 }
 .week b {
   font-weight: normal;
-  color: #546A8C;
+  color: #0c0c0c;
   width: 155px;
   height: 50px;
-
 }
 .days {
   -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-  line-height: 40px;
+  flex-wrap: wrap;
+  
   text-align: left;
   font-size: 20px;
-  color: #0C0C0C;
+  color: #0c0c0c;
 }
 time {
   width: 137px;
   height: 100px;
-  border: 1px solid #D4D4D4;
+  border: 1px solid #d4d4d4;
 }
 .currDay {
-  background: #B9B9B9;
-  border: 1px solid #546A8C;
+  background: #b9b9b9;
+  border: 1px solid #546a8c;
 }
 .head {
-  background: rgba(238,238,238,0.3);
+  background: rgba(238, 238, 238, 0.3);
   -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
   line-height: 40px;
   height: 60px;
   font-size: 20px;
@@ -237,16 +406,14 @@ time {
 .gtMonth {
   cursor: pointer;
   padding: 0 1em;
-  background: rgba(238,238,238,0.3);
+  background: rgba(238, 238, 238, 0.3);
   font-size: 20px;
+  padding-top:10px ;
 }
 .ltMonth:hover,
 .gtMonth:hover {
-  background: rgba(238,238,238,0.2);
+  background: rgba(238, 238, 238, 0.2);
   color: #f00;
   font-size: 24px;
 }
-
-
-
 </style>

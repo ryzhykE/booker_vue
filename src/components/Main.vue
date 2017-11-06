@@ -29,6 +29,7 @@ export default {
     }
   },
   methods: {
+    
      checkUsers: function()
     {
       var self = this
