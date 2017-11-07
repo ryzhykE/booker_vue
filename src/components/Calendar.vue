@@ -1,5 +1,15 @@
 <template>
   <div class="main container-fluid">
+
+     <modal 
+        v-if="showModal" 
+        :listEvent="listEvent"
+        :sentRole="role" 
+        v-on:refresh="getEventsMonth()"
+        v-on:close="showModal = false">
+     </modal>
+
+
     <section id="app" class="section">
       <h3 class="title is-3 shadow" v-text="message"></h3>
       <p class="time shadow" v-text="currentTime"></p>
@@ -25,8 +35,8 @@
                 <time v-for="(i, index) in calendar" :class="{currDay: i == currDay}"> 
                     {{i[0]}}
                     <ul class="list-time" v-if="eventsMonth.length>0 ">
-                      <li  v-if="i[1]" v-for="ev in i[1]" >
-                        <router-link to="#" class="link">{{ev.timeString}}</router-link>
+                      <li  v-if="i[1]" v-for="ev in i[1]" >                      
+                          <button class="btn btn-link" v-on:click="showEvent(ev)">{{ev.timeString}}</button>                     
                       </li> 
                     </ul>
                 </time>
@@ -40,7 +50,7 @@
                     {{i[0]}}
                     <ul class="list-time" v-if="eventsMonth.length>0 ">
                       <li v-if="i[1]" v-for="ev in i[1]" >
-                        <router-link to="#" class="link">{{ev.timeString}}</router-link>
+                        <button class="btn btn-link" v-on:click="showEvent(ev)">{{ev.timeString}}</button>
                       </li> 
                     </ul>
                 </time>
@@ -62,13 +72,16 @@
 </template>
 <script>
 import axios from "axios";
+import Modal from './Modal'
 export default {
   name: "Calendar",
   props: ["role"],
   data() {
     return {
+      listEvent: {},
+      showModal: false,
       message: 'Current Time:',
-    currentTime: null,
+      currentTime: null,
       rooms: "",
       counter: 2,
       activeRoomId: "1",
@@ -100,6 +113,11 @@ export default {
     };
   },
   methods: {
+    showEvent: function(event){
+      var self = this
+      self.showModal = true
+      self.listEvent = event
+    },
      updateCurrentTime() {
       var self = this;
       var d = new Date()
@@ -272,7 +290,9 @@ export default {
       return res;
     }
   },
-  components: {},
+  components: {
+    'Modal': Modal
+  },
   created() {
     this.addEventsCalendar();
     this.getRooms();
@@ -292,8 +312,8 @@ section.section {
 }
 h3.is-3, p.time {
   color: white;
-   background: #34155E; /* Цвет фона */
-    box-shadow: 0 0 15px white; /* Параметры тени */
+   background: #34155E; 
+    box-shadow: 0 0 15px white; 
 }
 
 h3.is-3:not(:last-child) {

@@ -29,7 +29,6 @@
       </div>
     </div>
     <div>
-      {{role}}
     </div>
   </div>
 </template>

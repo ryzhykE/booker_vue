@@ -36,128 +36,113 @@
 </template>
 
 <script>
-    import axios from "axios";
-    export default {
-        name: "EmployeeList",
-        data() {
-            return {
-                error: "",
-                addUser: "",
-                editUser: "",
-                editUserName: "",
-                user: {},
-                users: [] 
-            };
-    
-        },
-        methods: {
-           
-             deleteUser: function(id){
-                var self = this
-                self.error = ''
-                axios.delete(getUrl() + 'user/' + id+'/')
-                .then(function (response) {
-                if (response.data === 1)
-                {
-                self.error = 'User delete!'
-               self.getUsersList()  
-               }
-                else{
-                self.errorMsg = response.data
-                return false;
-                 }
-                })
-                .catch(function (error) {
-                     console.log(error);
-                 })
-                },
-            eddUser: function(user){
-                var self = this
-                self.$router.push({ path: '/employeelist/edituser/'+ user })
-                },
-            
-            getUsersList: function() {
-                var self = this;
-                self.addUser = "";
-                axios
-                    .get(getUrl() + "user/")
-                    .then(function(response) {
-                    if (response.status == 200){
-                         self.users = response.data;  
-                        return true
-                    }
-                    else {
-                        self.error = response.data
-                        return false
-                    }     
-                })
-                
-            },  
-            checkUserFun: function() {
-                var self = this;
-                if (localStorage["user"]) {
-                    self.user = JSON.parse(localStorage["user"]);
-                    axios
-                        .get(getUrl() + "user/" + self.user.id +'/')
-
-                        .then(function(response) {
-                            if (response.status == 200){
-                                if(self.user.hash === response.data.hash)
-                                {
-                                    if (response.data.id_role == "1") {
-    
-                                       self.user.role = response.data.role;
-    
-                                      } else {
-    
-                                         self.$router.push("/");
-                                     }
-                                }
-                            }
-                            else {
-                                self.$router.push("/");
-                            }
-                        })
-    
-                } else {
-                    self.$router.push("/");
-    
-                }
-            }
-        },
-    
-        created() {
-            this.checkUserFun()
-            this.getUsersList()
-        }    
+import axios from "axios";
+export default {
+  name: "EmployeeList",
+  data() {
+    return {
+      error: "",
+      addUser: "",
+      editUser: "",
+      editUserName: "",
+      user: {},
+      users: [],
+      config: {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      }
     };
+  },
+  methods: {
+    deleteUser: function(id) {
+      var self = this;
+      self.error = "";
+      axios
+        .delete(getUrl() + "user/" + id + "/", self.config )
+        .then(function(response) {
+          if (response.data === 1) {
+            self.error = "User delete!";
+            self.getUsersList();
+          } else {
+            self.errorMsg = response.data;
+            return false;
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    eddUser: function(user) {
+      var self = this;
+      self.$router.push({ path: "/employeelist/edituser/" + user });
+    },
+
+    getUsersList: function() {
+      var self = this;
+      self.addUser = "";
+      axios.get(getUrl() + "user/").then(function(response) {
+        if (response.status == 200) {
+          self.users = response.data;
+          return true;
+        } else {
+          self.error = response.data;
+          return false;
+        }
+      });
+    },
+    checkUserFun: function() {
+      var self = this;
+      if (localStorage["user"]) {
+        self.user = JSON.parse(localStorage["user"]);
+        axios
+          .get(getUrl() + "user/" + self.user.id + "/")
+          .then(function(response) {
+            if (response.status == 200) {
+              if (self.user.hash === response.data.hash) {
+                if (response.data.id_role == "1") {
+                  self.user.role = response.data.role;
+                } else {
+                  self.$router.push("/");
+                }
+              }
+            } else {
+              self.$router.push("/");
+            }
+          });
+      } else {
+        self.$router.push("/");
+      }
+    }
+  },
+
+  created() {
+    this.checkUserFun();
+    this.getUsersList();
+  }
+};
 </script>
 
 <style scoped>
-
-    .admin-main {
-        background-image: url(/static/img/admin.jpg);
-        min-height: 550px;
-    }
-    .manu-left {
-        background-image: url(/static/img/admin-left.jpg);
-        min-height: 550px;  
-    }    
-    h6 {
-        font: 1.7em sans-serif;
-        text-transform: uppercase;
-        font-weight: bold;
-        color: #49060e;
-    }
-    .header-th th {
-        text-align: center;
-        font: 1.3em sans-serif;
-
-    }
-    .tr-list td {
-        font: 1.3em sans-serif;
-    }
-    
-
-   
+.admin-main {
+  background-image: url(/static/img/admin.jpg);
+  min-height: 550px;
+}
+.manu-left {
+  background-image: url(/static/img/admin-left.jpg);
+  min-height: 550px;
+}
+h6 {
+  font: 1.7em sans-serif;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #49060e;
+}
+.header-th th {
+  text-align: center;
+  font: 1.3em sans-serif;
+}
+.tr-list td {
+  font: 1.3em sans-serif;
+}
 </style>

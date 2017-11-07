@@ -84,6 +84,8 @@
                 </div>
               </div>
             </div>
+            
+
             <button class="btn btn-info" @click="changeFormat()">TimeFormat</button>
             <div class="new-user">
               <label>4. Enter the specifics for the meeting. (This will be what people see when they click on an event link.)</label>
@@ -138,9 +140,7 @@
                 </div>
               </div>
             </div>
-
           </div>
-
         </div>
         <div class="panel-footer">
           <button type="button" class="btn btn-labeled btn-success" v-on:click="addEvent()">
@@ -206,10 +206,18 @@ export default {
   },
 
   methods: {
+      
     addEvent: function() {
       var self = this;
       self.error = "";
       if (self.checkInputs()) {
+        var date = new Date();
+        var sentDate = new Date( self.year, self.month, self.day, self.timeStartH,self.timeEndM)
+        if(date>sentDate)
+          {
+            self.error = "Date and time must be more current day/time"
+            return false
+          }
         var data = new FormData();
         data.append(
           "id_user", self.editUser
@@ -284,7 +292,7 @@ export default {
          axios
         .post(getUrl() + "events/", data, self.config)
         .then(function(response) {
-          if (response.status == 200) {
+          if (response.status == 1) {
 
             self.error = "Thanks for the application" 
            } else {
@@ -308,6 +316,8 @@ export default {
         self.error = "Select Date";
         return false;
       }
+      
+
       if (
         !self.timeStartH ||
         !self.timeStartM ||
@@ -415,6 +425,7 @@ export default {
     }
   },
   computed: {
+     
     hoursSelectorSt() {
       var self = this;
       var hours = [];
