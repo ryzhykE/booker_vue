@@ -80,7 +80,7 @@
                     </div>
                 </div>
             </div>
-        <!-- {{listEvent}} -->        
+        {{listEvent}}      
         </div>
       </div>
     </div>
@@ -127,27 +127,36 @@ export default {
     
         })
     },
+   
       deleteEvent: function(){
         var self = this
         self.error=''      
         self.success = ''
-        axios.delete(getUrl() + "events/" + self.listEvent.id + "/", self.config )
-            .then(function (response) {
-            console.log(response.data)
-            if (response.data == 1)
-             {
-                self.error = 'Event Delete !'
-                self.success = 'success'
-                self.$emit('refresh')
-             }
-             else
-            {
-                 self.error = response.data
-            }
-        })
-        .catch(function (error) {
-            console.log(error);
-        })
+        console.log(self.listEvent.id)
+        console.log(self.listEvent.id_parent)
+
+        if (self.listEvent.id_parent == null)
+        {
+          var url = (getUrl() + "events/" + self.listEvent.id + "/", self.config);
+        }
+        else
+        {
+          var url = (getUrl() + "events/" + self.listEvent.id + "/" + self.listEvent.id_parent + "/", self.config);
+        }
+        // axios.delete(getUrl() + "events/" + self.listEvent.id + "/", self.config )
+        //     .then(function (response) {
+        //     console.log(response.data)
+        //     if (response.data == 1)
+        //      {
+        //         self.error = 'Event Delete !'
+        //         self.success = 'success'
+        //         self.$emit('refresh')
+        //      }
+        //      else
+        //     {
+        //          self.error = response.data
+        //     }
+        // })
     },
     setPropert: function() {
       var self = this;
@@ -171,11 +180,6 @@ export default {
       }else{
         self.endM = tmpE.getMinutes()
       }
-      //self.getEventTime();
-      //   if (self.access == '2' || self.user.id == self.event.id_user)
-      //   {
-      //     self.getEventsIdParent()
-      //   }
     },
     checkUserRole: function() {
       var self = this;

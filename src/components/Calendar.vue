@@ -382,7 +382,6 @@ list-style-type: none;
   text-align: center;
   padding-bottom: 20px;
   padding-left: 20px;
-  margin-left: 10%;
 }
 .week {
   border-bottom: 1px solid rgba(204, 204, 204, 0.3);
@@ -399,7 +398,6 @@ list-style-type: none;
 .days {
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  
   text-align: left;
   font-size: 20px;
   color: #0c0c0c;
