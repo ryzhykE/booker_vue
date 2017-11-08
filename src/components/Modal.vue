@@ -66,21 +66,21 @@
                             </div>
                         </div>
                         <div class="panel-footer">
-                                <!-- <div v-if="occurrenceSection == 'show'" > -->
+                                
                             <input type="checkbox" id="checkbox" v-model="checked">
                             <label for="checkbox">Apply to all occurrences?</label>
+                            
                             <div v-if="success != 'success'">
-                        <div v-if="access == '2'" class="btn-section">
-                            <button class="btn btn-primary" v-on:click="updateEvent()"><i class="glyphicon glyphicon-pencil"></i> Update</button>
-                            <button class="btn btn-danger" v-on:click="deleteEvent()"><i class="glyphicon glyphicon-trash"></i> Delete</button>
-                        </div>
-                        </div>
-                        
+                              <div v-if="access == '2'" class="btn-section">
+                                  <button class="btn btn-primary" v-on:click="updateEvent()"><i class="glyphicon glyphicon-pencil"></i> Update</button>
+                                  <button class="btn btn-danger" v-on:click="deleteEvent()"><i class="glyphicon glyphicon-trash"></i> Delete</button>
+                              </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        {{listEvent}}      
+        <!-- {{listEvent}}        -->
         </div>
       </div>
     </div>
@@ -108,6 +108,7 @@ export default {
       occurrenceSection: "",
       checked: false,
       selDescription: "",
+      eventYear: "",
       selUser: "",
         config: {
         headers: {
@@ -117,47 +118,85 @@ export default {
     };
   },
   methods: {
-          getReccur: function(){
+     updateEvent: function(){
       var self = this
       self.error = ''
-      self.events = []
-      axios.get(getUrl() + "events/" + self.listEvent.id_parent + "/", self.config)
-        .then(function (response) {
+       if (self.checkInputs()) {
+       var data = {}
+       data.id = self.listEvent.id
+       data.id_user = self.selUser;
+       data.id_room = self.listEvent.id_room
+       data.description = self.selDescription;
+       data.time_start = new Date(self.eventYear, self.eventMonth, self.eventDay, self.startH, self.startM).getTime()
+       data.time_end = new Date(self.eventYear, self.eventMonth, self.eventDay, self.endH, self.endM).getTime()
+       axios.put(getUrl() + 'events/', data, self.config)
+        .then(function(response){
           console.log(response.data)
-    
+          if (response.data == 1 || response.data == true)
+          {
+            self.error = 'Event update!'
+            self.success = 'success'
+            self.$emit('refresh')
+           }
         })
+
+       }  
     },
-   
+    checkInputs: function() {
+      var self = this;
+      if (self.startH > self.endH){
+        self.error = 'End time of an event earlier than the start!'
+        return false
+      }
+      if (self.startH == self.endH && self.endM == self.endM){
+        self.error = 'Start day match End date!'
+        return false
+      }
+      if (self.endH == 20 && self.endM == 30)
+      {
+        self.error = 'End time more than 20:30!'
+        return false
+      }
+      
+      return true;
+    },
       deleteEvent: function(){
         var self = this
         self.error=''      
         self.success = ''
-        console.log(self.listEvent.id)
-        console.log(self.listEvent.id_parent)
-
-        if (self.listEvent.id_parent == null)
+        if (self.checked)
         {
-          var url = (getUrl() + "events/" + self.listEvent.id + "/", self.config);
+           var url = ("events/" + self.listEvent.id + "/" + self.listEvent.id_parent + "/" + self.checked + "/");
+          console.log(url)
         }
         else
         {
-          var url = (getUrl() + "events/" + self.listEvent.id + "/" + self.listEvent.id_parent + "/", self.config);
+          var url = ("events/" + self.listEvent.id + "/"+ self.checked + "/");
+          console.log(url)
         }
-        // axios.delete(getUrl() + "events/" + self.listEvent.id + "/", self.config )
-        //     .then(function (response) {
-        //     console.log(response.data)
-        //     if (response.data == 1)
-        //      {
-        //         self.error = 'Event Delete !'
-        //         self.success = 'success'
-        //         self.$emit('refresh')
-        //      }
-        //      else
-        //     {
-        //          self.error = response.data
-        //     }
-        // })
+        axios.delete(getUrl() + url , self.config )
+            .then(function (response) {
+            console.log(response.data)
+            if (response.data == 1)
+             {
+                self.error = 'Event Delete !'
+                self.success = 'success'
+                self.$emit('refresh')
+             }
+             else
+            {
+                 self.error = response.data
+            }
+        })
     },
+     getEventTime: function(){
+      var self = this
+      var date_start = new Date(self.listEvent.time_start)
+      var date_end = new Date(self.listEvent.time_end)
+      self.eventYear = date_start.getFullYear()
+      self.eventMonth = date_start.getMonth()
+      self.eventDay = date_start.getDate()
+  }, 
     setPropert: function() {
       var self = this;
       self.currDate = new Date()
@@ -165,6 +204,7 @@ export default {
       self.selUser = self.listEvent.id_user;
       self.checkUserRole();
       self.getUsersList();
+      self.getEventTime();
       var tmpS = new Date(self.listEvent.time_start)
       var tmpE = new Date(self.listEvent.time_end)
       self.eventStartPoint = tmpS
@@ -204,8 +244,24 @@ export default {
           return false;
         }
       });
-    }, 
+    },
+    //  getCount: function() {
+    //   var self = this;
+    //   axios.get(getUrl() + "events/count/" + self.listEvent.id_user + '/' + self.listEvent.id_parent + '/').then(function(response) {
+    //       alert(response.data)
+    //     if (response.status == 200) {
+        
+    //       //self.occurrenceSection = response.data;
+    //       return true;
+    //     } else {
+    //       self.error = response.data;
+    //       return false;
+    //     }
+    //   });
+    // }, 
+    
   },
+  
   created() {
     this.setPropert();
   },
@@ -287,5 +343,7 @@ export default {
     font-weight: bold;
     font-size: 15px;
 }
+
+
 
 </style>

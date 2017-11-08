@@ -162,7 +162,7 @@ export default {
   },
   data() {
     return {
-      timeFormat: "12",
+      timeFormat: "24",
       modeStart: "",
       modeEnd: "",
       timeStartH: "",
@@ -293,6 +293,8 @@ export default {
         .post(getUrl() + "events/", data, self.config)
         .then(function(response) {
           if (response.status == 1) {
+            console.log(response.status)
+            console.log(response.data)
 
             self.error = "Thanks for the application" 
            } else {
@@ -317,7 +319,11 @@ export default {
         return false;
       }
       
-
+       if (self.timeStartH == 20 && self.timeEndM == 30)
+      {
+        self.error = 'End time more than 20:00!'
+        return false
+      }
       if (
         !self.timeStartH ||
         !self.timeStartM ||
