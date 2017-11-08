@@ -109,6 +109,7 @@ export default {
       checked: false,
       selDescription: "",
       eventYear: "",
+      allEvents: "",
       selUser: "",
         config: {
         headers: {
@@ -122,25 +123,55 @@ export default {
       var self = this
       self.error = ''
        if (self.checkInputs()) {
-       var data = {}
-       data.id = self.listEvent.id
-       data.id_user = self.selUser;
-       data.id_room = self.listEvent.id_room
-       data.description = self.selDescription;
-       data.time_start = new Date(self.eventYear, self.eventMonth, self.eventDay, self.startH, self.startM).getTime()
-       data.time_end = new Date(self.eventYear, self.eventMonth, self.eventDay, self.endH, self.endM).getTime()
-       axios.put(getUrl() + 'events/', data, self.config)
-        .then(function(response){
-          console.log(response.data)
-          if (response.data == 1 || response.data == true)
-          {
-            self.error = 'Event update!'
-            self.success = 'success'
-            self.$emit('refresh')
-           }
-        })
-
+        var data = {}
+         if (self.checked){
+          data.timestamp = new Date(self.eventYear, self.eventMonth, self.eventDay, self.startH, self.startM).getTime()
+          data.checked = self.recEventsUpdate(self.allEvents)
+          console.log(data.checked)
+        }
+        else
+        {
+        data.id = self.listEvent.id
+        data.id_user = self.selUser;
+        data.id_room = self.listEvent.id_room
+        data.description = self.selDescription;
+        data.time_start = new Date(self.eventYear, self.eventMonth, self.eventDay, self.startH, self.startM).getTime()
+        data.time_end = new Date(self.eventYear, self.eventMonth, self.eventDay, self.endH, self.endM).getTime()
+        axios.put(getUrl() + 'events/', data, self.config)
+          .then(function(response){
+            console.log(response.data)
+            if (response.data == 1 || response.data == true)
+            {
+              self.error = 'Event update!'
+              self.success = 'success'
+              self.$emit('refresh')
+            }
+          })
+          }
        }  
+    },
+    recEventsUpdate: function(listEvent) {
+        var self = this
+        //console.log(listEvent)
+        var arrEvents = []
+        listEvent.forEach(function(val){
+          var newEvent = {}
+          var date_start = new Date(val.time_start)
+          var date_end = new Date(val.time_end)
+          var dateTimeStart = new Date(date_start.getFullYear(), date_start.getMonth(), date_start.getDate(),
+          self.startH, self.startM).getTime()
+          var dateTimeEnd = new Date(date_end.getFullYear(), date_end.getMonth(), date_end.getDate(),
+          self.endH, self.endM).getTime()
+          newEvent.event_id = val.id
+          newEvent.id_user = self.selUser
+          newEvent.id_room = self.listEvent.id_room
+          newEvent.description = self.selDescription
+          newEvent.time_start = dateTimeStart
+          newEvent.time_end = dateTimeEnd
+          arrEvents.push(newEvent)
+
+        })
+        return arrEvents
     },
     checkInputs: function() {
       var self = this;
@@ -179,7 +210,7 @@ export default {
             console.log(response.data)
             if (response.data == 1)
              {
-                self.error = 'Event Delete !'
+                self.error = 'Event Delete  - ' + self.listEvent.time_start + ' : ' + self.listEvent.time_end + ' user ' +self.listEvent.user_login
                 self.success = 'success'
                 self.$emit('refresh')
              }
