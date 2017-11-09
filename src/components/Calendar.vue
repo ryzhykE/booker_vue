@@ -4,10 +4,13 @@
      <modal 
         v-if="showModal" 
         :listEvent="listEvent"
-        :sentRole="role" 
+        :sentRole="role"
+        :sentUser="userss"
         v-on:refresh="getEventsMonth()"
         v-on:close="showModal = false">
      </modal>
+
+      
 
 
     <section id="app" class="section">
@@ -20,11 +23,16 @@
         {{room.name}} 
       </button>
     </div>
+    
     <div class="ch-year ">
       <button class="btn btn-primary"v-on:click="counter  = 2">First day Su</button>
       <button class="btn btn-primary" v-on:click="counter  = 1">First day Mon</button>
     </div>
 
+    <div class="am-pm-btn">
+        <button v-if="selTimeFormat == '24'" v-on:click="getTimeFormat('am-pm')" class="btn btn-info">AM-PM</button>
+        <button v-else-if="selTimeFormat == 'am-pm'" v-on:click="getTimeFormat('24')" class="btn btn-info">24</button>
+    </div>
     <div id="app" class="col-md-9">
       <div id="calendar">
         <div class="head"><b class="ltMonth" @click="ltMonth">«</b><b>{{months[currMonth]}} {{currYear}}</b><b class="gtMonth" @click="gtMonth">»</b></div>
@@ -75,7 +83,7 @@ import axios from "axios";
 import Modal from './Modal'
 export default {
   name: "Calendar",
-  props: ["role"],
+  props: ["role","userss"],
   data() {
     return {
       listEvent: {},
@@ -105,6 +113,7 @@ export default {
       ],
       days: [],
       eventsMonth: [],
+      selTimeFormat: 24,
       config: {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"

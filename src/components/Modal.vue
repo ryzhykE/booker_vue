@@ -14,11 +14,13 @@
                             <div class=" col-xs-12 col-sm-12 col-md-12 ">
                                  <div class="btnclose">
                                     <button class="btn btn-danger " type="button" v-on:click="$emit('close')" >X</button>
-                                </div> 
+                                </div>
+                            
                                 <p class="alert-danger">{{error}}</p>
                                 <div class="input-group">
+                          
                                     <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span> When:</span>
-                                    <div v-if="(currDate < eventStartPoint) && access == '2' ">
+                                    <div v-if="(access == '2' || sentUser.id == listEvent.id_user) && Date.now() < eventStartPoint">
                                         <select v-model="startH">
                                             <option v-for="h in hoursStSelector" :value="h.value">{{h.title}}</option>
                                         </select>
@@ -39,7 +41,7 @@
                                 </div>
                                 <div class="input-group">
                                 <span class="input-group-addon"><span class="glyphicon glyphicon-list-alt"></span> Notes: </span>
-                                    <div v-if="access == '2'">    
+                                    <div v-if="(access == '2' || sentUser.id == listEvent.id_user) && Date.now() < eventStartPoint">    
                                         <input class="form-control" type="text" v-model="selDescription" :value="listEvent.description">
                                     </div>
                                     <div v-else>{{listEvent.description}}</div>
@@ -48,13 +50,14 @@
                                  <span class="input-group-addon">
                                      <span class="glyphicon glyphicon-user"></span> Who: 
                                  </span>
-                                    <div v-if="listEvent.user_login && access == '2'">    
+                                    <div v-if="(access == '2' || sentUser.id == listEvent.id_user) && Date.now() < eventStartPoint">    
                                         <select class="form-control" v-model="selUser">
                                             <option v-for="user in users" :value="user.id">{{user.login}}</option>
                                         </select>
                                     </div>
                                     <div v-else-if="listEvent.user_login && access == '1'">{{listEvent.user_login}}</div>
                                     <div v-else-if="!listEvent.user_login" class="alert-danger">The user has been removed</div>
+                                    <div v-else>{{listEvent.user_login}}</div>
                                 </div>
                                 <div class="input-group">
                                  <span class="input-group-addon">
@@ -65,13 +68,13 @@
                             </div>
                             </div>
                         </div>
-                        <div class="panel-footer">
-                                
-                            <input type="checkbox" id="checkbox" v-model="checked">
-                            <label for="checkbox">Apply to all occurrences?</label>
-                            
+                        <div class="panel-footer"> 
                             <div v-if="success != 'success'">
-                              <div v-if="access == '2'" class="btn-section">
+                              <div v-if="(access == '2' || sentUser.id == listEvent.id_user) && Date.now() < eventStartPoint" class="btn-section">
+                                    <div v-if="occurrenceSection == 'show'">
+                                      <input type="checkbox" id="checkbox" v-model="checked">
+                                      <label for="checkbox">Apply to all occurrences?</label>
+                                    </div> 
                                   <button class="btn btn-primary" v-on:click="updateEvent()"><i class="glyphicon glyphicon-pencil"></i> Update</button>
                                   <button class="btn btn-danger" v-on:click="deleteEvent()"><i class="glyphicon glyphicon-trash"></i> Delete</button>
                               </div>
@@ -80,9 +83,9 @@
                     </div>
                 </div>
             </div>
-        <!-- {{listEvent}}        -->
         </div>
       </div>
+      
     </div>
   </transition>
 </template>
@@ -90,16 +93,16 @@
 import axios from "axios";
 export default {
   name: "Modal",
-  props: ["listEvent", "sentRole"],
+  props: ["listEvent", "sentRole", "sentUser"],
   data() {
     return {
       error: "",
-      startH: '',
-      startM: '',
+      startH: "",
+      startM: "",
       success: "",
-      endH: '',
-      endM: '',
-      minutes:['00', '30'],
+      endH: "",
+      endM: "",
+      minutes: ["00", "30"],
       eventStartPoint: "",
       access: "",
       eventParent: "",
@@ -111,7 +114,8 @@ export default {
       eventYear: "",
       allEvents: "",
       selUser: "",
-        config: {
+      date_start_point: "",
+      config: {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         }
@@ -119,137 +123,193 @@ export default {
     };
   },
   methods: {
-     updateEvent: function(){
-      var self = this
-      self.error = ''
-       if (self.checkInputs()) {
-        var data = {}
-         if (self.checked){
-          data.timestamp = new Date(self.eventYear, self.eventMonth, self.eventDay, self.startH, self.startM).getTime()
-          data.checked = self.recEventsUpdate(self.allEvents)
-          console.log(data.checked)
+    getEventsId: function() {
+      var self = this;
+      var requestUrl =
+        "events/parent/" +
+        self.listEvent.id_room +
+        "/" +
+        self.listEvent.id +
+        "/" +
+        self.listEvent.id_parent +
+        "/";
+      axios.get(getUrl() + requestUrl).then(function(response) {
+        if (response.status == 200) {
+          self.allEvents = response.data;
+          return true;
+        } else {
+          self.error = response.data;
+          return false;
         }
-        else
-        {
-        data.id = self.listEvent.id
-        data.id_user = self.selUser;
-        data.id_room = self.listEvent.id_room
-        data.description = self.selDescription;
-        data.time_start = new Date(self.eventYear, self.eventMonth, self.eventDay, self.startH, self.startM).getTime()
-        data.time_end = new Date(self.eventYear, self.eventMonth, self.eventDay, self.endH, self.endM).getTime()
-        axios.put(getUrl() + 'events/', data, self.config)
-          .then(function(response){
-            console.log(response.data)
-            if (response.data == 1 || response.data == true)
-            {
-              self.error = 'Event update!'
-              self.success = 'success'
-              self.$emit('refresh')
-            }
-          })
-          }
-       }  
+      });
     },
-    recEventsUpdate: function(listEvent) {
-        var self = this
-        //console.log(listEvent)
-        var arrEvents = []
-        listEvent.forEach(function(val){
-          var newEvent = {}
-          var date_start = new Date(val.time_start)
-          var date_end = new Date(val.time_end)
-          var dateTimeStart = new Date(date_start.getFullYear(), date_start.getMonth(), date_start.getDate(),
-          self.startH, self.startM).getTime()
-          var dateTimeEnd = new Date(date_end.getFullYear(), date_end.getMonth(), date_end.getDate(),
-          self.endH, self.endM).getTime()
-          newEvent.event_id = val.id
-          newEvent.id_user = self.selUser
-          newEvent.id_room = self.listEvent.id_room
-          newEvent.description = self.selDescription
-          newEvent.time_start = dateTimeStart
-          newEvent.time_end = dateTimeEnd
-          arrEvents.push(newEvent)
+    updateEvent: function() {
+      var self = this;
+      self.error = "";
+      if (self.checkInputs()) {
+        var data = {};
+     
+          data.id = self.listEvent.id;
+          data.id_user = self.selUser;
+          data.id_room = self.listEvent.id_room;
+          data.description = self.selDescription;
+          data.id_parent = self.listEvent.id_parent;
+          data.time_start = new Date(
+            self.eventYear,
+            self.eventMonth,
+            self.eventDay,
+            self.startH,
+            self.startM
+          ).getTime();
+          data.time_end = new Date(
+            self.eventYear,
+            self.eventMonth,
+            self.eventDay,
+            self.endH,
+            self.endM
+          ).getTime();
 
-        })
-        return arrEvents
+          if(self.checked)
+          {
+            data.start_point = self.date_start_point.getTime()
+          }
+          axios
+            .put(getUrl() + "events/", data, self.config)
+            .then(function(response) {
+              console.log(response.data);
+              if (response.data == 1 || response.data == true) {
+                self.error =
+                  "Event update " +
+                  self.listEvent.time_start +
+                  " : " +
+                  self.listEvent.time_end +
+                  " user " +
+                  self.listEvent.user_login;
+                self.success = "success";
+                self.$emit("refresh");
+              }
+            });
+      }
+    },
+    recEventsUpdate: function(list) {
+      var self = this;
+      var arrEvents = [];
+      list.forEach(function(val) {
+        var newEvent = {};
+        var date_start = new Date(val.time_start);
+        var date_end = new Date(val.time_end);
+        var dateTimeStart = new Date(
+          date_start.getFullYear(),
+          date_start.getMonth(),
+          date_start.getDate(),
+          self.startH,
+          self.startM
+        ).getTime();
+        var dateTimeEnd = new Date(
+          date_end.getFullYear(),
+          date_end.getMonth(),
+          date_end.getDate(),
+          self.endH,
+          self.endM
+        ).getTime();
+        newEvent.event_id = val.id;
+        newEvent.id_user = self.selUser;
+        newEvent.id_room = self.listEvent.id_room;
+        newEvent.description = self.selDescription;
+        newEvent.time_start = dateTimeStart;
+        newEvent.time_end = dateTimeEnd;
+        arrEvents.push(newEvent);
+      });
+      return arrEvents;
     },
     checkInputs: function() {
       var self = this;
-      if (self.startH > self.endH){
-        self.error = 'End time of an event earlier than the start!'
-        return false
+      if (self.startH > self.endH) {
+        self.error = "End time of an event earlier than the start!";
+        return false;
       }
-      if (self.startH == self.endH && self.endM == self.endM){
-        self.error = 'Start day match End date!'
-        return false
+      if (self.startH == self.endH && self.startM == self.endM) {
+        self.error = "Start time match End time!";
+        return false;
       }
-      if (self.endH == 20 && self.endM == 30)
-      {
-        self.error = 'End time more than 20:30!'
-        return false
+      if (self.endH == 20 && self.endM == 30) {
+        self.error = "End time more than 20:30!";
+        return false;
       }
-      
+
       return true;
     },
-      deleteEvent: function(){
-        var self = this
-        self.error=''      
-        self.success = ''
-        if (self.checked)
-        {
-           var url = ("events/" + self.listEvent.id + "/" + self.listEvent.id_parent + "/" + self.checked + "/");
-          console.log(url)
+    deleteEvent: function() {
+      var self = this;
+      var responses = confirm("Do you realy want  remove ?");
+      if (!responses) {
+        return false;
+      }
+      self.error = "";
+      self.success = "";
+      if (self.checked) {
+        var url =
+          "events/" +
+          self.listEvent.id +
+          "/" +
+          self.listEvent.id_parent +
+          "/" +
+          self.checked +
+          "/" +
+          self.listEvent.time_start +
+          "/";
+      } else {
+        var url = "events/" + self.listEvent.id + "/" + self.checked + "/";
+      }
+      axios.delete(getUrl() + url, self.config).then(function(response) {
+        if (response.data == 1) {
+          self.error =
+            "Event Delete  - " +
+            self.listEvent.time_start +
+            " : " +
+            self.listEvent.time_end +
+            " user " +
+            self.listEvent.user_login;
+          self.success = "success";
+          self.$emit("refresh");
+        } else {
+          self.error = response.data;
         }
-        else
-        {
-          var url = ("events/" + self.listEvent.id + "/"+ self.checked + "/");
-          console.log(url)
-        }
-        axios.delete(getUrl() + url , self.config )
-            .then(function (response) {
-            console.log(response.data)
-            if (response.data == 1)
-             {
-                self.error = 'Event Delete  - ' + self.listEvent.time_start + ' : ' + self.listEvent.time_end + ' user ' +self.listEvent.user_login
-                self.success = 'success'
-                self.$emit('refresh')
-             }
-             else
-            {
-                 self.error = response.data
-            }
-        })
+      });
     },
-     getEventTime: function(){
-      var self = this
-      var date_start = new Date(self.listEvent.time_start)
-      var date_end = new Date(self.listEvent.time_end)
-      self.eventYear = date_start.getFullYear()
-      self.eventMonth = date_start.getMonth()
-      self.eventDay = date_start.getDate()
-  }, 
+    getEventTime: function() {
+      var self = this;
+      var date_start = new Date(self.listEvent.time_start);
+      self.date_start_point = new Date(self.listEvent.time_start);
+      var date_end = new Date(self.listEvent.time_end);
+      self.eventYear = date_start.getFullYear();
+      self.eventMonth = date_start.getMonth();
+      self.eventDay = date_start.getDate();
+    },
     setPropert: function() {
       var self = this;
-      self.currDate = new Date()
+      self.getCount();
+      self.getEventsId();
+      self.currDate = new Date();
       self.selDescription = self.listEvent.description;
       self.selUser = self.listEvent.id_user;
       self.checkUserRole();
       self.getUsersList();
       self.getEventTime();
-      var tmpS = new Date(self.listEvent.time_start)
-      var tmpE = new Date(self.listEvent.time_end)
-      self.eventStartPoint = tmpS
-      self.startH = tmpS.getHours()
-      self.endH = tmpE.getHours()
-      if(tmpS.getMinutes() == '0'){
-        self.startM = '00'
-      }else{
-        self.startM = tmpS.getMinutes()
+      var tmpS = new Date(self.listEvent.time_start);
+      var tmpE = new Date(self.listEvent.time_end);
+      self.eventStartPoint = tmpS;
+      self.startH = tmpS.getHours();
+      self.endH = tmpE.getHours();
+      if (tmpS.getMinutes() == "0") {
+        self.startM = "00";
+      } else {
+        self.startM = tmpS.getMinutes();
       }
-      if(tmpE.getMinutes() == '0'){
-        self.endM = '00'
-      }else{
-        self.endM = tmpE.getMinutes()
+      if (tmpE.getMinutes() == "0") {
+        self.endM = "00";
+      } else {
+        self.endM = tmpE.getMinutes();
       }
     },
     checkUserRole: function() {
@@ -276,50 +336,60 @@ export default {
         }
       });
     },
-    //  getCount: function() {
-    //   var self = this;
-    //   axios.get(getUrl() + "events/count/" + self.listEvent.id_user + '/' + self.listEvent.id_parent + '/').then(function(response) {
-    //       alert(response.data)
-    //     if (response.status == 200) {
-        
-    //       //self.occurrenceSection = response.data;
-    //       return true;
-    //     } else {
-    //       self.error = response.data;
-    //       return false;
-    //     }
-    //   });
-    // }, 
-    
+    getCount: function() {
+      var self = this;
+      axios
+        .get(
+          getUrl() +
+            "events/count/" +
+            self.listEvent.id +
+            "/" +
+            self.listEvent.id_parent +
+            "/"
+        )
+        .then(function(response) {
+          if (response.status == 200) {
+            console.log(response.data);
+            self.occurrenceSection = response.data;
+            if (self.occurrenceSection > 1) {
+              self.occurrenceSection = "show";
+            }
+            return true;
+          } else {
+            self.error = response.data;
+            return false;
+          }
+        });
+    }
   },
-  
+
   created() {
     this.setPropert();
   },
   computed: {
-    hoursSelector(){
-      var self = this
-        var hours = []
-          for(var i=8;i<=20;i++){
-            hours.push({value:i, title:i})
-        }
-        return hours
+    hoursSelector() {
+      var self = this;
+      var hours = [];
+      for (var i = 8; i <= 20; i++) {
+        hours.push({ value: i, title: i });
+      }
+      return hours;
     },
-      hoursStSelector(){
-      var self = this
-        var hours = []
-          for(var i=8;i<=19;i++){
-            hours.push({value:i, title:i})
-        }
-        return hours
+    hoursStSelector() {
+      var self = this;
+      var hours = [];
+      for (var i = 8; i <= 19; i++) {
+        hours.push({ value: i, title: i });
+      }
+      return hours;
     },
-    minutesSelector(){
-      var self = this
-      var minutes = []
-      self.minutes.forEach(function(m){
-        minutes.push({value:m, title:m})
-      })
-      return minutes
+    minutesSelector() {
+      var self = this;
+      var minutes = [];
+      self.minutes.forEach(function(m) {
+        minutes.push({ value: m, title: m });
+      });
+      return minutes;
     }
   }
 };
@@ -370,11 +440,8 @@ export default {
   margin-left: 20px;
 }
 .subtit-time {
-    padding-top: 5px;
-    font-weight: bold;
-    font-size: 15px;
+  padding-top: 5px;
+  font-weight: bold;
+  font-size: 15px;
 }
-
-
-
 </style>

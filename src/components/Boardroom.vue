@@ -14,10 +14,11 @@
                 <label>1. Booked for:</label>
                 <select v-model="editUser">
                       <option value="" class="default">Select User</option>
-                      <option v-for="user in users" :value="user.id">{{user.login}}</option>
+                      <option v-for="user in usersList" :value="user.id">{{user.login}}</option>
                     </select>
               </div>
             </div>
+            
             <div class="new-user">
               <label>2. I would like to book this meeting</label>
               <div class="">
@@ -44,29 +45,29 @@
               <div class="col-md-9 ol-xs-offset-3 time-block">
                 <div class="col-md-2">
                   <select v-model="timeStartH" class="form-control">
-                            <option v-for="h in hoursSelectorSt" :value="h.value">{{h.title}}</option>
-                          </select>
+                   <option v-for="h in hoursSelectorSt" :value="h.value">{{h.title}}</option>
+                  </select>
                 </div>
                 <div class="col-md-2">
                   <select v-model="timeStartM" class="form-control">
-                          <option  value="0">00</option>
-                          <option  value="30">30</option>
-                        </select>
+                    <option  value="0">00</option>
+                    <option  value="30">30</option>
+                  </select>
                 </div>
                 <div v-if="timeFormat == '12'">
                   <div class="col-md-2">
                     <select v-model="modeEnd" class="form-control">
-                              <option  value="am">AM</option>
-                              <option  value="pm">PM</option>
-                            </select>
+                       <option  value="am">AM</option>
+                        <option  value="pm">PM</option>
+                  </select>
                   </div>
                 </div>
               </div>
               <div class="col-md-9 ol-xs-offset-3 time-block">
                 <div class="col-md-2">
                   <select v-model="timeEndH" class="form-control">
-                          <option v-for="s in hoursSelectorEnd" :value="s.value">{{s.title}}</option>
-                        </select>
+                    <option v-for="s in hoursSelectorEnd" :value="s.value">{{s.title}}</option>
+                  </select>
                 </div>
                 <div class="col-md-2">
                   <select v-model="timeEndM" class="form-control">
@@ -77,15 +78,14 @@
                 <div v-if="timeFormat == '12'">
                   <div class="col-md-2">
                     <select v-model="modeStart" class="form-control">
-                            <option  value="am">AM</option>
-                            <option  value="pm">PM</option>
-                          </select>
+                        <option  value="am">AM</option>
+                         <option  value="pm">PM</option>
+                    </select>
                   </div>
                 </div>
               </div>
             </div>
             
-
             <button class="btn btn-info" @click="changeFormat()">TimeFormat</button>
             <div class="new-user">
               <label>4. Enter the specifics for the meeting. (This will be what people see when they click on an event link.)</label>
@@ -193,6 +193,7 @@ export default {
       ],
       yearsCount: [2017, 2018, 2019, 2020],
       users: "",
+      user: "",
       editUser: "",
       rooms: "",
       roomid: "",
@@ -206,29 +207,35 @@ export default {
   },
 
   methods: {
-      
     addEvent: function() {
       var self = this;
       self.error = "";
       if (self.checkInputs()) {
         var date = new Date();
-        var sentDate = new Date( self.year, self.month, self.day, self.timeStartH,self.timeEndM)
-        if(date>sentDate)
-          {
-            self.error = "Date and time must be more current day/time"
-            return false
-          }
+        var sentDate = new Date(
+          self.year,
+          self.month,
+          self.day,
+          self.timeStartH,
+          self.timeEndM
+        );
+        if (date > sentDate) {
+          self.error = "Date and time must be more current day/time";
+          return false;
+        }
         var data = new FormData();
-        data.append(
-          "id_user", self.editUser
-        );
-        data.append(
-          "id_room", self.roomid
-        );
+        data.append("id_user", self.editUser);
+        data.append("id_room", self.roomid);
+
+        if (self.endH == 20 && self.endM == 30) {
+          self.error = "End time more than 20:30!";
+          return false;
+        }
         var timer = {};
         if (self.timeFormat == "12") {
           timer.time_start = new Date(
             self.month +
+              1 +
               "/" +
               self.day +
               "/" +
@@ -253,6 +260,7 @@ export default {
               " " +
               self.modeEnd
           ).getTime();
+      
         } else {
           timer.time_start = new Date(
             self.year,
@@ -268,45 +276,41 @@ export default {
             self.timeEndH,
             self.timeEndM
           ).getTime();
-        }
-        if (timer.time_start > timer.time_end) {
-          self.error = "End of event after start";
-          return false;
-        }
-        if (
-          self.timeStartH + "/" + self.timeStartM ===
-          self.timeEndH + "/" + self.timeEndM
-        ) {
-          self.error = "Beginning can not be equal to the end";
-          return false;
+          if (timer.time_start > timer.time_end) {
+            self.error = "End of event after start";
+            return false;
+            if (
+              self.timeStartH + "/" + self.timeStartM ===
+              self.timeEndH + "/" + self.timeEndM
+            ) {
+              self.error = "Beginning can not be equal to the end";
+              return false;
+            }
+          }
         }
 
-        data.append("time_start",timer.time_start );
-        data.append("time_end", timer.time_end );
+        data.append("time_start", timer.time_start);
+        data.append("time_end", timer.time_end);
         data.append("description", self.description);
         if (self.is_recur == 0) {
-          data.append("recur_period",self.recur_period);
+          data.append("recur_period", self.recur_period);
           data.append("duration", self.duration);
         }
-        console.log(data.append)
-         axios
-        .post(getUrl() + "events/", data, self.config)
-        .then(function(response) {
-          if (response.status == 1) {
-            console.log(response.status)
-            console.log(response.data)
-
-            self.error = "Thanks for the application" 
-           } else {
-             self.error = response.data;
-          }
-        })
-        .catch(function(error) {
-          self.error = response.data;
-          console.log(error);
-        });
+        console.log(data.append);
+        axios
+          .post(getUrl() + "events/", data, self.config)
+          .then(function(response) {
+            if (response.status == 1) {
+              self.error = "Thanks for the application";
+            } else {
+              self.error = response.data;
+            }
+          })
+          .catch(function(error) {
+            self.error = response.data;
+            console.log(error);
+          });
       }
-     
     },
     checkInputs: function() {
       var self = this;
@@ -318,11 +322,10 @@ export default {
         self.error = "Select Date";
         return false;
       }
-      
-       if (self.timeStartH == 20 && self.timeEndM == 30)
-      {
-        self.error = 'End time more than 20:00!'
-        return false
+
+      if (self.timeStartH == 20 && self.timeEndM == 30) {
+        self.error = "End time more than 20:00!";
+        return false;
       }
       if (
         !self.timeStartH ||
@@ -361,8 +364,7 @@ export default {
               if (self.user.hash === response.data.hash) {
                 if (response.data.id_role == "1") {
                   self.user.role = response.data.role;
-                } else {
-                  self.$router.push("/");
+                  self.getUser();
                 }
               }
             } else {
@@ -431,7 +433,16 @@ export default {
     }
   },
   computed: {
-     
+    usersList() {
+      var self = this;
+      if (self.users.length != 0) {
+        return self.users;
+      } else {
+        var arr = [];
+        arr.push(self.user);
+        return arr;
+      }
+    },
     hoursSelectorSt() {
       var self = this;
       var hours = [];
@@ -494,7 +505,6 @@ export default {
   },
   created() {
     this.checkUserFun();
-    this.getUser();
     this.getRoom(this.$route.params.id);
   }
 };
