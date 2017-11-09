@@ -29,9 +29,9 @@
       <button class="btn btn-primary" v-on:click="counter  = 1">First day Mon</button>
     </div>
 
-    <div class="am-pm-btn">
-        <button v-if="selTimeFormat == '24'" v-on:click="getTimeFormat('am-pm')" class="btn btn-info">AM-PM</button>
-        <button v-else-if="selTimeFormat == 'am-pm'" v-on:click="getTimeFormat('24')" class="btn btn-info">24</button>
+    <div class="change-time">
+        <button  v-on:click="getTimeFormat('am-pm')" class="btn btn-info">AM-PM </button>
+        <button  v-on:click="getTimeFormat('24')" class="btn btn-info">24H</button>
     </div>
     <div id="app" class="col-md-9">
       <div id="calendar">
@@ -122,6 +122,23 @@ export default {
     };
   },
   methods: {
+    getTimeFormat: function(data)
+    {
+      var self = this
+      self.selTimeFormat = data
+
+      // alert(data)
+      // var hours = Number(time.match(/^(\d+)/)[1]);
+      // var minutes = Number(time.match(/:(\d+)/)[1]);
+      // var AMPM = time.match(/\s(.*)$/)[1];
+      // if(AMPM == "PM" && hours<12) hours = hours+12;
+      // if(AMPM == "AM" && hours==12) hours = hours-12;
+      // var sHours = hours.toString();
+      // var sMinutes = minutes.toString();
+      // if(hours<10) sHours = "0" + sHours;
+      // if(minutes<10) sMinutes = "0" + sMinutes;
+
+    },
     showEvent: function(event){
       var self = this
       self.showModal = true
@@ -151,9 +168,9 @@ export default {
       else {
         s = d.getSeconds()
       }
-      
       self.currentTime = h + ' : ' + m +' : ' + s;
     },
+    
     
     addEventsCalendar: function() {
       var self = this;
@@ -312,6 +329,11 @@ export default {
 </script>
 
 <style scoped>
+
+.change-time button{
+  margin:0 15px 15px 15px;
+  width: 90px;
+}
 section.section {
   display: flex;
   flex-direction: column;
