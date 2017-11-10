@@ -10,15 +10,13 @@
                             <h3 class="panel-title">B.B. DETAILS</h3>
                         </div>
                         <div class="panel-body">
-                            <div class="row">
+                          <div class="row">
                             <div class=" col-xs-12 col-sm-12 col-md-12 ">
                                  <div class="btnclose">
                                     <button class="btn btn-danger " type="button" v-on:click="$emit('close')" >X</button>
                                 </div>
-                            
                                 <p class="alert-danger">{{error}}</p>
-                                <div class="input-group">
-                          
+                                <div class="input-group">                        
                                     <span class="input-group-addon"><span class="glyphicon glyphicon-time"></span> When:</span>
                                     <div v-if="(access == '2' || sentUser.id == listEvent.id_user) && Date.now() < eventStartPoint">
                                         <select v-model="startH">
@@ -85,7 +83,6 @@
             </div>
         </div>
       </div>
-      
     </div>
   </transition>
 </template>
@@ -176,7 +173,7 @@ export default {
           axios
             .put(getUrl() + "events/", data, self.config)
             .then(function(response) {
-              console.log(response.data);
+              //console.log(response.data);
               if (response.data == 1 || response.data == true) {
                 self.error =
                   "Event update " +
@@ -241,7 +238,6 @@ export default {
     },
     deleteEvent: function() {
       var self = this;
-     
       self.error = "";
       self.success = "";
       if (self.checked) {
@@ -259,8 +255,7 @@ export default {
         var url = "events/" + self.listEvent.id + "/" + self.checked + "/";
       }
       axios.delete(getUrl() + url, self.config).then(function(response) {
-        if (response.data == 1) {
-          //console.log(response.data);
+        if (response.data >= 1 || response.statusText =='OK') {
           self.error =
             "Event Delete  - " +
             self.listEvent.time_start +
@@ -347,7 +342,7 @@ export default {
         )
         .then(function(response) {
           if (response.status == 200) {
-            console.log(response.data);
+            //console.log(response.data);
             self.occurrenceSection = response.data;
             if (self.occurrenceSection > 1) {
               self.occurrenceSection = "show";

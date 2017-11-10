@@ -13,33 +13,31 @@
               <div class="new-user">
                 <label>1. Booked for:</label>
                 <select v-model="editUser">
-                      <option value="" class="default">Select User</option>
-                      <option v-for="user in usersList" :value="user.id">{{user.login}}</option>
-                    </select>
+                  <option value="" class="default">Select User</option>
+                  <option v-for="user in usersList" :value="user.id">{{user.login}}</option>
+                </select>
               </div>
-            </div>
-            
+            </div>            
             <div class="new-user">
               <label>2. I would like to book this meeting</label>
               <div class="">
                 <select v-model="month" class=" col-md-2">
-                      <option v-for="(month_name, index) in months" :value="index" :key="index">
-                            {{month_name}}
-                      </option>
-                    </select>
-                <select v-model="day" class="col-md-1">
-                      <option v-for="(day, index) in daysInMonth" :value="day" :key="index">
-                          {{day}}
-                      </option>
-                    </select>
+                  <option v-for="(month_name, index) in months" :value="index" :key="index">
+                    {{month_name}}
+                  </option>
+                </select>
+                <select v-model="day" class="col-md-2">
+                  <option v-for="(day, index) in daysInMonth" :value="day" :key="index">
+                    {{day}}
+                  </option>
+                </select>
                 <select v-model="year" class="col-md-2">
-                      <option v-for="(numyear, index) in yearsCount" :value="numyear":key="index">
-                        {{ numyear }}
-                      </option>
-                    </select>
+                  <option v-for="(numyear, index) in yearsCount" :value="numyear":key="index">
+                    {{ numyear }}
+                  </option>
+                </select>
               </div>
             </div>
-
             <div class="new-user">
               <label> 3. Specify what the time and end of the meeting. (This will be what people see on the calendar.)</label>
               <div class="col-md-9 ol-xs-offset-3 time-block">
@@ -57,8 +55,8 @@
                 <div v-if="timeFormat == '12'">
                   <div class="col-md-2">
                     <select v-model="modeEnd" class="form-control">
-                       <option  value="am">AM</option>
-                        <option  value="pm">PM</option>
+                      <option  value="am">AM</option>
+                      <option  value="pm">PM</option>
                   </select>
                   </div>
                 </div>
@@ -71,21 +69,20 @@
                 </div>
                 <div class="col-md-2">
                   <select v-model="timeEndM" class="form-control">
-                        <option  value="0">00</option>
-                        <option  value="30">30</option>
-                      </select>
+                    <option  value="0">00</option>
+                    <option  value="30">30</option>
+                    </select>
                 </div>
                 <div v-if="timeFormat == '12'">
                   <div class="col-md-2">
                     <select v-model="modeStart" class="form-control">
-                        <option  value="am">AM</option>
-                         <option  value="pm">PM</option>
+                      <option  value="am">AM</option>
+                      <option  value="pm">PM</option>
                     </select>
                   </div>
                 </div>
               </div>
-            </div>
-            
+            </div>           
             <button class="btn btn-info" @click="changeFormat()">TimeFormat</button>
             <div class="new-user">
               <label>4. Enter the specifics for the meeting. (This will be what people see when they click on an event link.)</label>
@@ -98,13 +95,13 @@
                 <label>5. Is this going to be a recurring event?</label>
                 <div class="radio">
                   <label>
-                        <input type="radio" name="recur" id="recur1" value="1" v-model="is_recur" >no
-                        </label>
+                    <input type="radio" name="recur" id="recur1" value="1" v-model="is_recur" >no
+                    </label>
                 </div>
                 <div class="radio">
                   <label>
-                        <input type="radio" name="recur" id="recur2" value="0" v-model="is_recur" >yes
-                      </label>
+                    <input type="radio" name="recur" id="recur2" value="0" v-model="is_recur" >yes
+                    </label>
                 </div>
               </div>
             </div>
@@ -113,20 +110,19 @@
                 <label>6. If it is recurring, specify weekly, bi-weekly, or monthly.</label>
                 <div class="radio">
                   <label>
-                          <input type="radio" name="recur_period"  value="weekly" v-model="recur_period" >weekly
-                        </label>
+                    <input type="radio" name="recur_period"  value="weekly" v-model="recur_period" >weekly
+                    </label>
                 </div>
                 <div class="radio">
                   <label>
-                          <input type="radio" name="recur_period" value="bi-weekly" v-model="recur_period" >bi-weekly
-                        </label>
+                    <input type="radio" name="recur_period" value="bi-weekly" v-model="recur_period" >bi-weekly
+                    </label>
                 </div>
                 <div class="radio">
                   <label>
-                          <input type="radio" name="recur_period" value="monthly" v-model="recur_period" >monthly
-                        </label>
+                    <input type="radio" name="recur_period" value="monthly" v-model="recur_period" >monthly
+                    </label>
                 </div>
-
                 <label> If weekly or bi-weekly, specify the number of weeks for it to keep recurring. 
                         If monthly, specify the number of months. (If you choose "bi-weekly" and put in an odd number of weeks,
                         the computer will round down.)</label>
@@ -299,7 +295,7 @@ export default {
           data.append("recur_period", self.recur_period);
           data.append("duration", self.duration);
         }
-        console.log(data.append);
+        //console.log(data.append);
         axios
           .post(getUrl() + "events/", data, self.config)
           .then(function(response) {
@@ -310,8 +306,7 @@ export default {
             }
           })
           .catch(function(error) {
-            self.error = response.data;
-            console.log(error);
+            self.error = error;
           });
       }
     },
@@ -391,9 +386,11 @@ export default {
     CheckF: function(event) {
       if (
         this.recur_period == "weekly" &&
-        (event.keyCode < 49 || event.keyCode > 52) &&
-        (event.keyCode < 97 || event.keyCode > 100)
+        (event.keyCode < 49 || event.keyCode > 51) &&
+        (event.keyCode < 97 || event.keyCode > 99)
       ) {
+        alert(event.keyCode)
+        //self.duration = event.keyCode
         event.preventDefault();
       } else if (
         this.recur_period == "bi-weekly" &&
@@ -415,7 +412,7 @@ export default {
           }
         })
         .catch(function(error) {
-          console.log(error);
+          self.error = error;
         });
     },
     getRoom: function(id) {
@@ -486,7 +483,6 @@ export default {
       }
       return hours;
     },
-
     daysInMonth: function() {
       var self = this;
       var days = [];
@@ -495,7 +491,6 @@ export default {
         days.push(i + 1);
       }
       return days;
-      console.log(days);
     },
     recurring: function() {
       var self = this;
@@ -516,18 +511,15 @@ export default {
 .form-login {
   background: url(/static/img/room4.jpg);
 }
-
 .new-user {
   font: 1.3em sans-serif;
   margin-top: 20px;
   margin-bottom: 20px;
   padding-bottom: 20px;
 }
-
 .new-user p {
   text-align: left;
 }
-
 .time-block {
   margin-bottom: 20px;
   margin-top: 10px;

@@ -1,44 +1,40 @@
 <template>
   <div class="col-lg-5 ">
-      <div v-if="error !== ''" class="alert alert-danger">
-        {{ error }}
-      </div>
-      <div class="form">
-           <div class="form-group">
-                    <label class="control-label col-sm-2" for="login">Login: </label>
-                    <div class="col-sm-10">
-                        <input v-model="userInfo.login"  type="text" class="form-control" id="login" placeholder="Enter login" name="login">
-                        <p class="help-block" v-show="!validation.login">Login cannot be empty </p>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="email">Email: </label>
-                    <div class="col-sm-10">
-                        <input v-model="userInfo.email" type="email" class="form-control" id="email" placeholder="Enter email" name="email">
-                         <p class="help-block" v-show="!validation.email">Please provide a valid email address. </p>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="pass">Password: </label>
-                    <div class="col-sm-10">
-                        <input v-model="pass" type="password" class="form-control" id="pass" placeholder="Enter password" name="pass">
-                        <p class="help-block" v-show="!validation.pass">Password cannot be empty </p>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="control-label col-sm-2" for="pass_confirm">Password Conferm: </label>
-                    <div class="col-sm-10">
-                        <input v-model="pass_confirm" type="password" class="form-control" id="pass_confirm" placeholder="Conferm password" name="pass">
-                    </div>
-                </div>
-            <button class="btn btn-success save-user" @click="saveUser()">Update User</button>
+    <div v-if="error !== ''" class="alert alert-danger">
+      {{ error }}
+    </div>
+    <div class="form">
+       <div class="form-group">
+          <label class="control-label col-sm-2" for="login">Login: </label>
+            <div class="col-sm-10">
+              <input v-model="userInfo.login"  type="text" class="form-control" id="login" placeholder="Enter login" name="login">
+              <p class="help-block" v-show="!validation.login">Login cannot be empty </p>
+            </div>
+        </div>
+        <div class="form-group">
+           <label class="control-label col-sm-2" for="email">Email: </label>
+            <div class="col-sm-10">
+              <input v-model="userInfo.email" type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+              <p class="help-block" v-show="!validation.email">Please provide a valid email address. </p>
+            </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="pass">Password: </label>
+          <div class="col-sm-10">
+          <input v-model="pass" type="password" class="form-control" id="pass" placeholder="Enter password" name="pass">
+            <p class="help-block" v-show="!validation.pass">Password cannot be empty </p>
+          </div>
+       </div>
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="pass_confirm">Password Conferm: </label>
+            <div class="col-sm-10">
+              <input v-model="pass_confirm" type="password" class="form-control" id="pass_confirm" placeholder="Conferm password" name="pass">
+            </div>
+        </div>
+      <button class="btn btn-success save-user" @click="saveUser()">Update User</button>
     </div>
   </div>
 </template>
-
 <script>
 var emailRE = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 import axios from "axios";
@@ -77,7 +73,7 @@ export default {
           }
         })
         .catch(function(error) {
-          console.log(error);
+          //console.log(error);
         });
     },
     saveUser: function() {
@@ -96,7 +92,6 @@ export default {
           self.error = "Password fields do not match";
           return false;
         }
-
         if (self.isValid) {
           var data = {};
           data.id = self.userInfo.id;
@@ -111,7 +106,7 @@ export default {
               self.error = "User update";
             })
             .catch(function(error) {
-              console.log(error);
+              //console.log(error);
             });
         } else {
           self.error = "Check all fields!";
@@ -142,7 +137,6 @@ export default {
   components: {}
 };
 </script>
-
 
 <style scoped>
 .form {

@@ -1,4 +1,3 @@
-
 <template>
   <div class="main">
     <p class="alert-danger">{{error}}</p>

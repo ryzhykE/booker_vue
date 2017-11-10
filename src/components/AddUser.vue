@@ -5,7 +5,6 @@
             <div v-if="error !== ''" class="alert alert-danger">
                 {{ error }}
             </div>
-        
                 <div class="form-group" v-on:submit.prevent="registration">
                     <label class="control-label col-sm-2" for="login">Login: </label>
                     <div class="col-sm-10">
@@ -21,7 +20,6 @@
                     </div>
                      <p class="help-block" v-show="!validation.email">Please provide a valid email address. </p>
                 </div>
-
                 <div class="form-group"  v-on:submit.prevent="registration">
                     <label class="control-label col-sm-2" for="pass">Password: </label>
                     <div class="col-sm-10">
@@ -29,7 +27,6 @@
                     </div>
                     <p class="help-block" v-show="!validation.pass">Password cannot be empty </p>
                 </div>
-
                 <div class="form-group">
                     <label class="control-label col-sm-2" for="pass_confirm">Password Conferm: </label>
                     <div class="col-sm-10">
@@ -99,7 +96,6 @@ export default {
           self.error = "Password fields do not match";
           return false;
         }
-
         if (self.isValid) {
           var data = new FormData();
           data.append("email", self.email);
@@ -118,7 +114,7 @@ export default {
             })
             .catch(function(error) {
               self.error = response.data;
-              console.log(error);
+              //console.log(error);
             });
         } else {
           self.error = "Enter field!";
@@ -130,8 +126,4 @@ export default {
 </script>
 
 <style scoped>
-.success {
-  color: darkblue;
-  text-align: center;
-}
 </style>

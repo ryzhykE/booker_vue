@@ -1,6 +1,5 @@
 <template>
   <div class="main container-fluid">
-
      <modal 
         v-if="showModal" 
         :listEvent="listEvent"
@@ -9,10 +8,6 @@
         v-on:refresh="getEventsMonth()"
         v-on:close="showModal = false">
      </modal>
-
-      
-
-
     <section id="app" class="section">
       <h3 class="title is-3 shadow" v-text="message"></h3>
       <p class="time shadow" v-text="currentTime"></p>
@@ -23,16 +18,13 @@
         {{room.name}} 
       </button>
     </div>
-    
     <div class="ch-year ">
       <button class="btn btn-primary"v-on:click="counter  = 2">First day Su</button>
       <button class="btn btn-primary" v-on:click="counter  = 1">First day Mon</button>
     </div>
-
     <div class="change-time">
       <button :class="{currTime: selTimeFormat == 24}" v-on:click="getTimeFormat('24')" class="btn btn-info" >24H</button>
-        <button :class="{currTime: selTimeFormat == 'am-pm'}" v-on:click="getTimeFormat('am-pm')" class="btn btn-info">AM-PM </button>
-        
+        <button :class="{currTime: selTimeFormat == 'am-pm'}" v-on:click="getTimeFormat('am-pm')" class="btn btn-info">AM-PM </button>     
     </div>
     <div id="app" class="col-md-9">
       <div id="calendar">
@@ -45,10 +37,9 @@
                    <p class='count-day'>{{i[0]}}</p> 
                     <div class="list-time" v-if="eventsMonth.length>0 ">
                       <p v-if="i[1]" v-for="ev in i[1]" >                     
-                        <button class="btn btn-link btn-time" v-on:click="showEvent(ev)">{{ev.timeString}}</button>                     
+                        <button class="btn btn-link btn-time" v-on:click="showEvent(ev)"><span class="glyphicon glyphicon-time"></span> {{ev.timeString}}</button>                     
                       </p> 
-                    </div>
-                      
+                    </div>                     
                 </time>
               </div>
           </div>
@@ -57,29 +48,28 @@
               <div class="days">
                 <time v-for="blank in nullWeek1">&nbsp;</time>
                 <time v-for="(i, index) in calendar" :class="{currDay: i == currDay}"> 
-                    {{i[0]}}
                      <p class='count-day'>{{i[0]}}</p> 
                     <div class="list-time" v-if="eventsMonth.length>0 ">
                       <p v-if="i[1]" v-for="ev in i[1]" >                     
                         <button class="btn btn-link btn-time" v-on:click="showEvent(ev)">{{ev.timeString}}</button>                     
                       </p> 
-                    </div>
-                  
+                    </div>                 
                 </time>
               </div>
           </div>
       </div>
-    </div>
-      <div class="row">
+      <div class="">
         <div class="booker-but">
           <router-link :to="'/boardroom/'+activeRoomId"><button class="btn btn-btn btn-warning">Book it</button></router-link>
         </div>
         <div class="booker-but">
             <router-link v-if="role == '1'" to="/employeelist">
-                <button class="btn btn-btn btn-warning">Employee List</button>
+              <button class="btn btn-btn btn-warning">Employee List</button>
             </router-link>
         </div>
       </div>  
+    </div>
+      
   </div>
 </template>
 <script>
@@ -171,9 +161,6 @@ export default {
         var end = dateEvEnd.getHours();
         var startM = new Date(event.time_start).getMinutes();
         var endM = new Date(event.time_end).getMinutes();
-
-       
-
         if (self.selTimeFormat == 24) {
           if (dateEvStart.getMinutes() == 0) {
             start += ":" + dateEvStart.getMinutes() + "0-";
@@ -232,7 +219,7 @@ export default {
           }
         })
         .catch(function(error) {
-          console.log(error);
+          elf.error = error;
         });
     },
     setActiveRoom: function(id) {
@@ -253,7 +240,7 @@ export default {
           }
         })
         .catch(function(error) {
-          console.log(error);
+          self.error = error;
         });
     },
     ltMonth: function() {
@@ -356,8 +343,12 @@ export default {
   min-width: 50px;
   margin-right: 10px;
   margin-left: 10px;
-  font-size: 15px;
-  color: #F0F0F0;
+  font-size: 14px;
+  -webkit-box-shadow: 7px 7px 5px 0px rgba(32, 50, 50, 0.75);
+-moz-box-shadow:    7px 7px 5px 0px rgba(32, 50, 50, 0.75);
+box-shadow:         7px 7px 5px 0px rgba(32, 50, 50, 0.75);
+  font-weight: bold;
+  color: grey;
   
 }
 .change-time button {
@@ -374,7 +365,6 @@ section.section {
 h3.is-3,
 p.time {
   color: white;
-
   box-shadow: 0 0 15px white;
 }
 
@@ -382,11 +372,9 @@ h3.is-3:not(:last-child) {
   margin: 0;
   padding: 0;
 }
-
 .time {
   font-size: 3em;
 }
-
 .main {
   margin-top: -10px;
   background: url(/static/img/backcalend.jpg);
@@ -401,7 +389,6 @@ h3.is-3:not(:last-child) {
 .list-time {
   list-style-type: none;
 }
-
 .link {
   font-size: 15px;
   color: #ffffff;
@@ -465,7 +452,6 @@ h3.is-3:not(:last-child) {
   font-size: 20px;
   color: #0c0c0c;
   align-items: stretch;
-  
 }
 time {
   width: 144px;
@@ -476,7 +462,6 @@ time {
   background: #b9b9b9;
   border: 1px solid #245580;
 }
-
 .currTime {
   width: 110%;
   border: 2px solid #245580;

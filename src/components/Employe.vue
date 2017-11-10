@@ -1,35 +1,35 @@
 <template>
     <div class="row admin-main">
-         <div class="col-lg-5 manu-left">
-            <div v-if="error !== ''" class="alert alert-danger">
-                {{ error }}
-            </div>   
-            <div class="authors"> 
-                <h6>Users List:</h6>
-            <table class="table table-bordered">
-                <thead>
-                <tr class="success header-th">
-                    <th>Login</th>
-                    <th>Email</th>
-                    <th>Edit</th>
-                    <th>Remove</th>
-                </tr>
-                </thead>
-                <tbody>
+      <div class="col-lg-5 manu-left">
+        <div v-if="error !== ''" class="alert alert-danger">
+          {{ error }}
+        </div>   
+        <div class="authors"> 
+            <h6>Users List:</h6>
+          <table class="table table-bordered">
+            <thead>
+              <tr class="success header-th">
+                  <th>Login</th>
+                  <th>Email</th>
+                  <th>Edit</th>
+                  <th>Remove</th>
+              </tr>
+            </thead>
+              <tbody>
                 <tr v-for="(user, index) in users" :value="user.id" class="tr-list">
                     <td>{{user.login}}</td>
-                    <td><a :href="'mailto:' + user.email">{{user.email}}</a></td>
+                    <td><a :href="'mailto:'+user.email">{{user.email}}</a></td>
                     <td><button class="btn btn-warning" @click="eddUser(user.id)">Edit user</button></td>
                     <td v-if="user.id_role != 1"><button class="btn alert-danger" v-on:click="deleteUser(user.id)">Remove</button></td>
                     <td v-else>Admin</td>
                 </tr>
-                </tbody>
-            </table>
-            </div>
-             <router-link to="/employeelist/adduser/">
-                <button class="btn btn-success">Add a new Employee</button>
-            </router-link>
-             <router-link to="/"><button class="btn btn-info">Back</button></router-link>
+              </tbody>
+          </table>
+        </div>
+          <router-link to="/employeelist/adduser/">
+            <button class="btn btn-success">Add a new Employee</button>
+          </router-link>
+          <router-link to="/"><button class="btn btn-info">Back</button></router-link>
         </div>
         <router-view></router-view>
     </div>
@@ -65,19 +65,18 @@ export default {
             self.error = "User delete!";
             self.getUsersList();
           } else {
-            self.errorMsg = response.data;
+            self.error = response.data;
             return false;
           }
         })
         .catch(function(error) {
-          console.log(error);
+          //console.log(error);
         });
     },
     eddUser: function(user) {
       var self = this;
       self.$router.push({ path: "/employeelist/edituser/" + user });
     },
-
     getUsersList: function() {
       var self = this;
       self.addUser = "";
@@ -115,7 +114,6 @@ export default {
       }
     }
   },
-
   created() {
     this.checkUserFun();
     this.getUsersList();
