@@ -30,23 +30,25 @@
     </div>
 
     <div class="change-time">
-        <button  v-on:click="getTimeFormat('am-pm')" class="btn btn-info">AM-PM </button>
-        <button  v-on:click="getTimeFormat('24')" class="btn btn-info">24H</button>
+      <button :class="{currTime: selTimeFormat == 24}" v-on:click="getTimeFormat('24')" class="btn btn-info" >24H</button>
+        <button :class="{currTime: selTimeFormat == 'am-pm'}" v-on:click="getTimeFormat('am-pm')" class="btn btn-info">AM-PM </button>
+        
     </div>
     <div id="app" class="col-md-9">
       <div id="calendar">
         <div class="head"><b class="ltMonth" @click="ltMonth">«</b><b>{{months[currMonth]}} {{currYear}}</b><b class="gtMonth" @click="gtMonth">»</b></div>
           <div v-if="counter == 2">
           <div class="week"><b v-for="day in daysSun">{{day}}</b></div>
-              <div class="days">
+              <div class="days ">
                 <time v-if="nullWeek !==7" v-for="blank in nullWeek">&nbsp;</time>
                 <time v-for="(i, index) in calendar" :class="{currDay: i == currDay}"> 
-                    {{i[0]}}
-                    <ul class="list-time" v-if="eventsMonth.length>0 ">
-                      <li  v-if="i[1]" v-for="ev in i[1]" >                      
-                          <button class="btn btn-link" v-on:click="showEvent(ev)">{{ev.timeString}}</button>                     
-                      </li> 
-                    </ul>
+                   <p class='count-day'>{{i[0]}}</p> 
+                    <div class="list-time" v-if="eventsMonth.length>0 ">
+                      <p v-if="i[1]" v-for="ev in i[1]" >                     
+                        <button class="btn btn-link btn-time" v-on:click="showEvent(ev)">{{ev.timeString}}</button>                     
+                      </p> 
+                    </div>
+                      
                 </time>
               </div>
           </div>
@@ -56,11 +58,13 @@
                 <time v-for="blank in nullWeek1">&nbsp;</time>
                 <time v-for="(i, index) in calendar" :class="{currDay: i == currDay}"> 
                     {{i[0]}}
-                    <ul class="list-time" v-if="eventsMonth.length>0 ">
-                      <li v-if="i[1]" v-for="ev in i[1]" >
-                        <button class="btn btn-link" v-on:click="showEvent(ev)">{{ev.timeString}}</button>
-                      </li> 
-                    </ul>
+                     <p class='count-day'>{{i[0]}}</p> 
+                    <div class="list-time" v-if="eventsMonth.length>0 ">
+                      <p v-if="i[1]" v-for="ev in i[1]" >                     
+                        <button class="btn btn-link btn-time" v-on:click="showEvent(ev)">{{ev.timeString}}</button>                     
+                      </p> 
+                    </div>
+                  
                 </time>
               </div>
           </div>
@@ -80,15 +84,15 @@
 </template>
 <script>
 import axios from "axios";
-import Modal from './Modal'
+import Modal from "./Modal";
 export default {
   name: "Calendar",
-  props: ["role","userss"],
+  props: ["role", "userss"],
   data() {
     return {
       listEvent: {},
       showModal: false,
-      message: 'Current Time:',
+      message: "Current Time:",
       currentTime: null,
       rooms: "",
       counter: 2,
@@ -122,65 +126,55 @@ export default {
     };
   },
   methods: {
-    getTimeFormat: function(data)
-    {
-      var self = this
-      self.selTimeFormat = data
-
-      // alert(data)
-      // var hours = Number(time.match(/^(\d+)/)[1]);
-      // var minutes = Number(time.match(/:(\d+)/)[1]);
-      // var AMPM = time.match(/\s(.*)$/)[1];
-      // if(AMPM == "PM" && hours<12) hours = hours+12;
-      // if(AMPM == "AM" && hours==12) hours = hours-12;
-      // var sHours = hours.toString();
-      // var sMinutes = minutes.toString();
-      // if(hours<10) sHours = "0" + sHours;
-      // if(minutes<10) sMinutes = "0" + sMinutes;
-
-    },
-    showEvent: function(event){
-      var self = this
-      self.showModal = true
-      self.listEvent = event
-    },
-     updateCurrentTime() {
+    getTimeFormat: function(data) {
       var self = this;
-      var d = new Date()
-      var h
-       if(d.getHours()<10) {
-       h = "0" + d.getHours()
-      }
-      else {
-        h = d.getHours()
-      }
-      var m 
-      if(d.getMinutes()<10) {
-       m = "0" + d.getMinutes()
-      }
-      else {
-        m = d.getMinutes()
-      }
-      var s
-      if(d.getSeconds()<10) {
-       s = "0" + d.getSeconds()
-      }
-      else {
-        s = d.getSeconds()
-      }
-      self.currentTime = h + ' : ' + m +' : ' + s;
+      self.selTimeFormat = data;
+      self.addEventsCalendar();
     },
-    
-    
-    addEventsCalendar: function() {
+    showEvent: function(event) {
       var self = this;
-        self.eventsMonth.forEach(function(event) {
-          var dateEvStart = new Date(event.time_start);
-          var dateEvEnd = new Date(event.time_end);
-          var date = new Date(self.currYear, self.currMonth + 1);
-          var str = "";
-          var start = dateEvStart.getHours();
-          var end = dateEvEnd.getHours();
+      self.showModal = true;
+      self.listEvent = event;
+    },
+    updateCurrentTime() {
+      var self = this;
+      var d = new Date();
+      var h;
+      if (d.getHours() < 10) {
+        h = "0" + d.getHours();
+      } else {
+        h = d.getHours();
+      }
+      var m;
+      if (d.getMinutes() < 10) {
+        m = "0" + d.getMinutes();
+      } else {
+        m = d.getMinutes();
+      }
+      var s;
+      if (d.getSeconds() < 10) {
+        s = "0" + d.getSeconds();
+      } else {
+        s = d.getSeconds();
+      }
+      self.currentTime = h + " : " + m + " : " + s;
+    },
+
+    addEventsCalendar: function(data) {
+      var self = this;
+      self.eventsMonth.forEach(function(event) {
+        var dateEvStart = new Date(event.time_start);
+        var dateEvEnd = new Date(event.time_end);
+        var date = new Date(self.currYear, self.currMonth + 1);
+        var str = "";
+        var start = dateEvStart.getHours();
+        var end = dateEvEnd.getHours();
+        var startM = new Date(event.time_start).getMinutes();
+        var endM = new Date(event.time_end).getMinutes();
+
+       
+
+        if (self.selTimeFormat == 24) {
           if (dateEvStart.getMinutes() == 0) {
             start += ":" + dateEvStart.getMinutes() + "0-";
           } else {
@@ -192,8 +186,29 @@ export default {
             end += ":" + dateEvEnd.getMinutes();
           }
           str = start + end;
-          event.timeString = str
-        });
+          event.timeString = str;
+        } else {
+          if (+start >= 12) {
+            if (+start == 12) {
+              var resTime = +start + ":" + startM + " pm - ";
+            } else {
+              var resTime = +start - 12 + ":" + startM + " pm - ";
+            }
+          } else {
+            var resTime = +start + ":" + startM + " am - ";
+          }
+          if (+end >= 12) {
+            if (+end == 12) {
+              var resTimeE = +end + ":" + endM + " pm";
+            } else {
+              var resTimeE = +end - 12 + ":" + endM + " pm";
+            }
+          } else {
+            var resTimeE = +end + ":" + endM + " am";
+          }
+          event.timeString = resTime + resTimeE;
+        }
+      });
     },
     getEventsMonth: function() {
       var self = this;
@@ -251,7 +266,7 @@ export default {
       self.inst_date = new Date(self.currYear, self.currMonth + 1);
       self.getEventsMonth();
     },
-      daysInD: function() {
+    daysInD: function() {
       var self = this;
       var days = [];
       var countD = new Date(self.currYear, self.currMonth + 1, 0).getDate();
@@ -259,26 +274,26 @@ export default {
         days.push([i + 1]);
       }
       self.days = days;
-    },
+    }
   },
   computed: {
-    calendar(){
-      var self = this
-      var month = self.days
-      month.forEach(function(day){
-        self.eventsMonth.forEach(function(ev){
-          var evStart = new Date(ev.time_start)
-          var d = new Date(self.currYear, self.currMonth, day[0])
-          if(evStart.getDate() == d.getDate()){
-            if(day.length > 1){
-              day[1].push(ev)
-            }else{
-              day.push([ev])
+    calendar() {
+      var self = this;
+      var month = self.days;
+      month.forEach(function(day) {
+        self.eventsMonth.forEach(function(ev) {
+          var evStart = new Date(ev.time_start);
+          var d = new Date(self.currYear, self.currMonth, day[0]);
+          if (evStart.getDate() == d.getDate()) {
+            if (day.length > 1) {
+              day[1].push(ev);
+            } else {
+              day.push([ev]);
             }
           }
-        })
-      })
-      return month
+        });
+      });
+      return month;
     },
     currYear() {
       var self = this;
@@ -317,7 +332,7 @@ export default {
     }
   },
   components: {
-    'Modal': Modal
+    Modal: Modal
   },
   created() {
     this.addEventsCalendar();
@@ -329,9 +344,24 @@ export default {
 </script>
 
 <style scoped>
-
-.change-time button{
-  margin:0 15px 15px 15px;
+.count-day {
+  width: 20px;
+  margin: 0;
+  float: left;
+  padding: 0;
+}
+.btn-time {
+  float: right;
+  padding: 0;
+  min-width: 50px;
+  margin-right: 10px;
+  margin-left: 10px;
+  font-size: 15px;
+  color: #F0F0F0;
+  
+}
+.change-time button {
+  margin: 0 15px 15px 15px;
   width: 90px;
 }
 section.section {
@@ -341,10 +371,11 @@ section.section {
   padding-top: 10px;
   background: transparent;
 }
-h3.is-3, p.time {
+h3.is-3,
+p.time {
   color: white;
-   background: #34155E; 
-    box-shadow: 0 0 15px white; 
+
+  box-shadow: 0 0 15px white;
 }
 
 h3.is-3:not(:last-child) {
@@ -358,21 +389,22 @@ h3.is-3:not(:last-child) {
 
 .main {
   margin-top: -10px;
-   background: url(/static/img/backcalend.jpg) ;
-   background-size: cover; 
+  background: url(/static/img/backcalend.jpg);
+  background-size: cover;
 }
-.activeRoom{
-  background-color:#399A87;
-  padding-left:20px;
-  padding-right:20px;
-  border: 2px dotted black; 
+.activeRoom {
+  background-color: #399a87;
+  padding-left: 20px;
+  padding-right: 20px;
+  border: 2px dotted black;
 }
-.list-time{
-list-style-type: none;
+.list-time {
+  list-style-type: none;
 }
+
 .link {
   font-size: 15px;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 .booker-but {
   margin-top: 20px;
@@ -408,7 +440,7 @@ list-style-type: none;
 }
 #calendar {
   box-shadow: 0 1em 10em -2em #000;
-  width: 995px;
+  width: 1050px;
   min-height: 700px;
   text-align: center;
   padding-bottom: 20px;
@@ -432,15 +464,23 @@ list-style-type: none;
   text-align: left;
   font-size: 20px;
   color: #0c0c0c;
+  align-items: stretch;
+  
 }
 time {
-  width: 137px;
-  height: 100px;
+  width: 144px;
+  min-height: 100px;
   border: 1px solid #d4d4d4;
 }
 .currDay {
   background: #b9b9b9;
-  border: 1px solid #546a8c;
+  border: 1px solid #245580;
+}
+
+.currTime {
+  width: 110%;
+  border: 2px solid #245580;
+  color: #09004b;
 }
 .head {
   background: rgba(238, 238, 238, 0.3);
@@ -457,7 +497,7 @@ time {
   padding: 0 1em;
   background: rgba(238, 238, 238, 0.3);
   font-size: 20px;
-  padding-top:10px ;
+  padding-top: 10px;
 }
 .ltMonth:hover,
 .gtMonth:hover {

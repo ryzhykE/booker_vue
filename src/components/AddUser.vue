@@ -57,7 +57,7 @@ export default {
       error: "",
       success: "",
       login: "",
-      email:"",
+      email: "",
       pass: "",
       pass_confirm: "",
       config: {
@@ -68,77 +68,61 @@ export default {
     };
   },
   computed: {
-   
-    validation: function () {
+    validation: function() {
       return {
-       login: !!this.login.trim(),
-       pass: !!this.pass.trim(),
+        login: !!this.login.trim(),
+        pass: !!this.pass.trim(),
         email: emailRE.test(this.email)
-      }
+      };
     },
-    isValid: function () {
-      var validation = this.validation
-      return Object.keys(validation).every(function (key) {
-        return validation[key]
-      })
+    isValid: function() {
+      var validation = this.validation;
+      return Object.keys(validation).every(function(key) {
+        return validation[key];
+      });
     }
   },
-  methods: {    
+  methods: {
     registration: function() {
       var self = this;
-      if (
-        self.email &&
-        self.login &&
-        self.pass &&
-        self.pass_confirm
-      ) {
-      
+      self.error = "";
+      if (self.email && self.login && self.pass && self.pass_confirm) {
         if (self.pass.length < 5) {
-         self.error = "Password should be at least 4 characters"
-        return false
+          self.error = "Password should be at least 4 characters";
+          return false;
         }
-         if (self.login.length < 4) {
-         self.error = "Login more 4 characters"
-         return false
+        if (self.login.length < 4) {
+          self.error = "Login more 4 characters";
+          return false;
         }
         if (self.pass != self.pass_confirm) {
           self.error = "Password fields do not match";
-          return false
+          return false;
         }
-        
+
         if (self.isValid) {
           var data = new FormData();
           data.append("email", self.email);
           data.append("login", self.login);
           data.append("pass", self.pass);
           axios
-            .post(
-              getUrl()+'User/',
-              data,
-              self.config
-            )
+            .post(getUrl() + "User/", data, self.config)
             .then(function(response) {
-              if (response.data === "Register success")
-                {
-                    self.error = response.data
-                    self.$router.push({ path: '/employeelist/'})
-                    self.$parent.getUsersList()
-                }
-                else
-                {
-                    self.error = response.data
-                }
-              
+              if (response.data === "Register success") {
+                self.$parent.error = "User add"
+                self.$router.push({ path: "/employeelist/" });
+                self.$parent.getUsersList();
+              } else {
+                self.error = response.data;
+              }
             })
             .catch(function(error) {
-                self.error = response.data
+              self.error = response.data;
               console.log(error);
             });
-            }
-            else {
-            self.error = "Enter field!";
-            }
-    
+        } else {
+          self.error = "Enter field!";
+        }
       }
     }
   }

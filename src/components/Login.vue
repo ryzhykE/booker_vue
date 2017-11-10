@@ -38,7 +38,7 @@ export default {
   name: "Main",
   data() {
     return {
-      error:'',
+      error: "",
       login: "",
       pass: "",
       id: "",
@@ -51,61 +51,50 @@ export default {
       }
     };
   },
-   methods: {
-      loginUser: function() {
+  methods: {
+    loginUser: function() {
       var self = this;
       if (self.pass.length < 4) {
-         self.error = "Password should be at least 4 characters"
-        return false
-        }
-         if (self.login.length < 4) {
-         self.error = "Login more 4 characters"
-         return false
-        }
+        self.error = "Password should be at least 4 characters";
+        return false;
+      }
+      if (self.login.length < 4) {
+        self.error = "Login more 4 characters";
+        return false;
+      }
       axios
-        .put(
-          getUrl()+'User/',
-          {
-            login: self.login,
-            pass: self.pass
-          }
-        )
+        .put(getUrl() + "User/", {
+          login: self.login,
+          pass: self.pass
+        })
         .then(function(response) {
           self.error = "";
           if (response.data.id && response.data.hash) {
-            self.$parent.user.id = response.data.id
-            self.$parent.user.hash = response.data.hash 
-            localStorage['user'] = JSON.stringify(self.$parent.user)             
-            self.$parent.user.role = response.data.role
-            self.$parent.checkUser=1
-          } 
-          else {
-            self.error = "Password or login wrong";           
+            self.$parent.user.id = response.data.id;
+            self.$parent.user.hash = response.data.hash;
+            localStorage["user"] = JSON.stringify(self.$parent.user);
+            self.$parent.user.role = response.data.role;
+            self.$parent.checkUser = 1;
+          } else {
+            self.error = "Password or login wrong";
           }
         })
         .catch(function(error) {
-          self.error = "Password or login wrong"
+          self.error = "Password or login wrong";
         });
     },
-  created() {
+    created() {}
   }
-  },
-
-  
-   
 };
 </script>
 
 <style scoped>
 .main {
-   background: url(/static/img/calendar.jpg) no-repeat center center fixed;
-   background-size: cover; 
+  background: url(/static/img/calendar.jpg) no-repeat center center fixed;
+  background-size: cover;
 }
 .form-login {
   margin-top: 20px;
 }
-
-
-
 </style>
 

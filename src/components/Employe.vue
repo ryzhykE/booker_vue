@@ -59,7 +59,7 @@ export default {
       var self = this;
       self.error = "";
       axios
-        .delete(getUrl() + "user/" + id + "/", self.config )
+        .delete(getUrl() + "user/" + id + "/", self.config)
         .then(function(response) {
           if (response.data === 1) {
             self.error = "User delete!";

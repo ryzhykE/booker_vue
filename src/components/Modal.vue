@@ -241,10 +241,7 @@ export default {
     },
     deleteEvent: function() {
       var self = this;
-      var responses = confirm("Do you realy want  remove ?");
-      if (!responses) {
-        return false;
-      }
+     
       self.error = "";
       self.success = "";
       if (self.checked) {
@@ -256,13 +253,14 @@ export default {
           "/" +
           self.checked +
           "/" +
-          self.listEvent.time_start +
+          self.date_start_point.getTime() +
           "/";
       } else {
         var url = "events/" + self.listEvent.id + "/" + self.checked + "/";
       }
       axios.delete(getUrl() + url, self.config).then(function(response) {
         if (response.data == 1) {
+          //console.log(response.data);
           self.error =
             "Event Delete  - " +
             self.listEvent.time_start +

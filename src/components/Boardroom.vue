@@ -260,7 +260,6 @@ export default {
               " " +
               self.modeEnd
           ).getTime();
-      
         } else {
           timer.time_start = new Date(
             self.year,
@@ -276,9 +275,16 @@ export default {
             self.timeEndH,
             self.timeEndM
           ).getTime();
-          if (timer.time_start > timer.time_end) {
+          if (self.timeEndH == 20 && self.timeEndM == 30) {
+              self.error = "End time more than 20:30!";
+              return false;
+            }
+          
+        }
+
+        if (timer.time_start > timer.time_end) {
             self.error = "End of event after start";
-            return false;
+            return false; }
             if (
               self.timeStartH + "/" + self.timeStartM ===
               self.timeEndH + "/" + self.timeEndM
@@ -286,9 +292,6 @@ export default {
               self.error = "Beginning can not be equal to the end";
               return false;
             }
-          }
-        }
-
         data.append("time_start", timer.time_start);
         data.append("time_end", timer.time_end);
         data.append("description", self.description);
