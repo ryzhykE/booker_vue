@@ -101,6 +101,7 @@ export default {
           axios
             .put(getUrl() + "admin/", data, self.config)
             .then(function(response) {
+              console.log(response.data)
               self.getUser(self.$route.params.id);
               self.$parent.getUsersList(self.$route.params.id);
               self.error = "User update";
@@ -122,8 +123,8 @@ export default {
   computed: {
     validation: function() {
       return {
-        login: !!this.userInfo.login.trim(),
-        pass: !!this.pass.trim(),
+        login: !!this.userInfo.login,
+        pass: !!this.pass,
         email: emailRE.test(this.userInfo.email)
       };
     },

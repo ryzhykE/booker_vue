@@ -345,8 +345,8 @@ export default {
   margin-left: 10px;
   font-size: 14px;
   -webkit-box-shadow: 7px 7px 5px 0px rgba(32, 50, 50, 0.75);
--moz-box-shadow:    7px 7px 5px 0px rgba(32, 50, 50, 0.75);
-box-shadow:         7px 7px 5px 0px rgba(32, 50, 50, 0.75);
+  -moz-box-shadow:    7px 7px 5px 0px rgba(32, 50, 50, 0.75);
+  box-shadow:         7px 7px 5px 0px rgba(32, 50, 50, 0.75);
   font-weight: bold;
   color: grey;
   

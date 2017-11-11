@@ -173,7 +173,7 @@ export default {
           axios
             .put(getUrl() + "events/", data, self.config)
             .then(function(response) {
-              //console.log(response.data);
+              console.log(response.data);
               if (response.data == 1 || response.data == true) {
                 self.error =
                   "Event update " +

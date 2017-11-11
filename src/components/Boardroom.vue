@@ -389,7 +389,6 @@ export default {
         (event.keyCode < 49 || event.keyCode > 51) &&
         (event.keyCode < 97 || event.keyCode > 99)
       ) {
-        alert(event.keyCode)
         //self.duration = event.keyCode
         event.preventDefault();
       } else if (
