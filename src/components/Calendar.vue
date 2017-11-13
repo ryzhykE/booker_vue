@@ -51,7 +51,7 @@
                      <p class='count-day'>{{i[0]}}</p> 
                     <div class="list-time" v-if="eventsMonth.length>0 ">
                       <p v-if="i[1]" v-for="ev in i[1]" >                     
-                        <button class="btn btn-link btn-time" v-on:click="showEvent(ev)">{{ev.timeString}}</button>                     
+                       <button class="btn btn-link btn-time" v-on:click="showEvent(ev)"><span class="glyphicon glyphicon-time"></span> {{ev.timeString}}</button>                   
                       </p> 
                     </div>                 
                 </time>
@@ -218,9 +218,7 @@ export default {
             self.error = response.data;
           }
         })
-        .catch(function(error) {
-          elf.error = error;
-        });
+        
     },
     setActiveRoom: function(id) {
       var self = this;
@@ -341,14 +339,12 @@ export default {
   float: right;
   padding: 0;
   min-width: 50px;
-  margin-right: 10px;
-  margin-left: 10px;
   font-size: 14px;
   -webkit-box-shadow: 7px 7px 5px 0px rgba(32, 50, 50, 0.75);
   -moz-box-shadow:    7px 7px 5px 0px rgba(32, 50, 50, 0.75);
   box-shadow:         7px 7px 5px 0px rgba(32, 50, 50, 0.75);
   font-weight: bold;
-  color: grey;
+  color: white;
   
 }
 .change-time button {
@@ -427,7 +423,7 @@ h3.is-3:not(:last-child) {
 }
 #calendar {
   box-shadow: 0 1em 10em -2em #000;
-  width: 1050px;
+  width: 1150px;
   min-height: 700px;
   text-align: center;
   padding-bottom: 20px;
@@ -454,7 +450,7 @@ h3.is-3:not(:last-child) {
   align-items: stretch;
 }
 time {
-  width: 144px;
+  width: 155px;
   min-height: 100px;
   border: 1px solid #d4d4d4;
 }

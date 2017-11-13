@@ -43,7 +43,7 @@ export default {
               return true;
             } else {
               delete localStorage["user"];
-              self.errorMsg = response.data;
+              self.error = response.data;
               self.checkUser = "";
               return false;
             }

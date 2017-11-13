@@ -11,9 +11,11 @@
             <p class="alert-danger">{{error}}</p>
             <div class="input-group">
               <div class="new-user">
+  
                 <label>1. Booked for:</label>
                 <select v-model="editUser">
                   <option value="" class="default">Select User</option>
+                  
                   <option v-for="user in usersList" :value="user.id">{{user.login}}</option>
                 </select>
               </div>
@@ -194,6 +196,7 @@ export default {
       rooms: "",
       roomid: "",
       error: "",
+      oneUser: "",
       config: {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -275,19 +278,19 @@ export default {
               self.error = "End time more than 20:30!";
               return false;
             }
-          
-        }
-
-        if (timer.time_start > timer.time_end) {
+               if (timer.time_start > timer.time_end) {
             self.error = "End of event after start";
             return false; }
-            if (
-              self.timeStartH + "/" + self.timeStartM ===
-              self.timeEndH + "/" + self.timeEndM
-            ) {
-              self.error = "Beginning can not be equal to the end";
-              return false;
-            }
+          
+        }   
+          if (
+            self.timeStartH + "/" + self.timeStartM ===
+            self.timeEndH + "/" + self.timeEndM
+          ) 
+          {
+            self.error = "Beginning can not be equal to the end";
+            return false;
+          }
         data.append("time_start", timer.time_start);
         data.append("time_end", timer.time_end);
         data.append("description", self.description);
@@ -295,7 +298,6 @@ export default {
           data.append("recur_period", self.recur_period);
           data.append("duration", self.duration);
         }
-        //console.log(data.append);
         axios
           .post(getUrl() + "events/", data, self.config)
           .then(function(response) {
@@ -358,6 +360,8 @@ export default {
         axios
           .get(getUrl() + "user/" + self.user.id + "/")
           .then(function(response) {
+            console.log(response.data.login)
+            self.oneUser = response.data.login
             if (response.status == 200) {
               if (self.user.hash === response.data.hash) {
                 if (response.data.id_role == "1") {
@@ -389,6 +393,7 @@ export default {
         (event.keyCode < 49 || event.keyCode > 51) &&
         (event.keyCode < 97 || event.keyCode > 99)
       ) {
+
         //self.duration = event.keyCode
         event.preventDefault();
       } else if (
@@ -438,7 +443,7 @@ export default {
         return self.users;
       } else {
         var arr = [];
-        arr.push(self.user);
+        arr.push(self.oneUser);
         return arr;
       }
     },

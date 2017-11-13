@@ -48,7 +48,7 @@
                                  <span class="input-group-addon">
                                      <span class="glyphicon glyphicon-user"></span> Who: 
                                  </span>
-                                    <div v-if="(access == '2' || sentUser.id == listEvent.id_user) && Date.now() < eventStartPoint">    
+                                    <div v-if="(access == '2' ) && Date.now() < eventStartPoint">    
                                         <select class="form-control" v-model="selUser">
                                             <option v-for="user in users" :value="user.id">{{user.login}}</option>
                                         </select>
@@ -173,8 +173,8 @@ export default {
           axios
             .put(getUrl() + "events/", data, self.config)
             .then(function(response) {
-              console.log(response.data);
-              if (response.data == 1 || response.data == true) {
+              console.log(response.statusText);
+              if (response.data == 1 || response.data == true || response.statusText == "OK") {
                 self.error =
                   "Event update " +
                   self.listEvent.time_start +
